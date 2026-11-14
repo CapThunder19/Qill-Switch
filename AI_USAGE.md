@@ -1,0 +1,19 @@
+# AI usage
+
+This file records how AI was used to **build** Qill Switch and how AI **runs inside** it.
+
+## AI used to build the project
+
+| Date (UTC) | Tool | What it did | Human review |
+|---|---|---|---|
+| 2026-11-14 | AI coding assistant | Read the build brief (`QILL_SWITCH_BUILD_PROMPT.md`), scaffolded the monorepo, LICENSE, README skeleton, `.env.example`, Gitleaks config | Reviewed by owner before push |
+
+The build brief is kept in the repo as `QILL_SWITCH_BUILD_PROMPT.md`.
+
+## AI running inside the product
+
+| Component | Role | Can it grant power? |
+|---|---|---|
+| Mandate compiler (`packages/mandate`) | Turns plain English into mandate JSON from fixed templates; a deterministic validator checks every field | No: the owner must ML-DSA-sign the compiled output |
+| Treasury agent (`apps/agent`) | Proposes trades within the active mandate | No: limits are enforced on chain |
+| Guardian (`apps/guardian`) | Separate model and prompt; approves or vetoes trades above the soft limit | No: it can only veto. Its signature is needed *in addition to* the mandate |

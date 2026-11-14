@@ -1,0 +1,19 @@
+{
+  "name": "qill-switch",
+  "private": true,
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Quantum-signed mandates for AI agents on QoreChain",
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "test:contracts": "cd contracts && forge test -vv",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4",
+    "tsx": "^4.19.2",
+    "@types/node": "^22.9.0"
+  }
+}

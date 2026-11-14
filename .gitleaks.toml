@@ -1,0 +1,23 @@
+title = "qill-switch gitleaks config"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "hex-private-key"
+description = "32-byte hex private key"
+regex = '''(?i)(priv(ate)?_?key|secret|mnemonic)["'\s:=]+(0x)?[0-9a-f]{64}'''
+tags = ["key"]
+
+[[rules]]
+id = "mldsa-secret-key"
+description = "Large hex blob labelled as ML-DSA secret"
+regex = '''(?i)(mldsa|dilithium)[_-]?(secret|sk|priv)[a-z_]*["'\s:=]+(0x)?[0-9a-f]{512,}'''
+tags = ["key", "pqc"]
+
+[allowlist]
+description = "Test vectors and public material"
+paths = [
+  '''contracts/test/vectors/.*''',
+  '''packages/pq/test/vectors/.*''',
+]

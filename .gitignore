@@ -1,0 +1,32 @@
+# deps / build
+node_modules/
+dist/
+build/
+.vite/
+*.tsbuildinfo
+coverage/
+
+# foundry
+contracts/out/
+contracts/cache/
+contracts/broadcast/*/31337/
+contracts/lib/
+
+# secrets — NEVER commit
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.mldsa
+*.mnemonic
+keys/
+secrets/
+**/keystore/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
