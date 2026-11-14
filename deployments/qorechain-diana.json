@@ -21,5 +21,8 @@
     "pool.addLiquidity": "0x398fff884088ee3424cb1b55352a8fdd5611213d7f761e00055246dd384a89e3",
     "A.transfer(vault)": "0x5084734c5e34848cf698284cf897c49b368532a4468e6f435aa243214e3539d3",
     "B.transfer(vault)": "0xfd0b5f1da9d70f5ec3b25cc1a35074178de7a384d1bf8291da3f416e6ea475c7"
+  },
+  "ownerTxs": {
+    "pause": "0x555b810a27f7cc69bab53b70ce9bd94d599cc961b2c504a511cf254e2e93ee47"
   }
 }
