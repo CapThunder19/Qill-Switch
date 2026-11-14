@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "license": "MIT",
+  "type": "module",
   "description": "Quantum-signed mandates for AI agents on QoreChain",
   "scripts": {
     "build": "pnpm -r build",

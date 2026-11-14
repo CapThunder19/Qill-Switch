@@ -1,0 +1,12 @@
+{
+  "name": "@qill/spikes",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@noble/post-quantum": "0.7.1",
+    "@qill/pq": "workspace:*",
+    "viem": "^2.21.0"
+  }
+}

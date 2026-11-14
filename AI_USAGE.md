@@ -7,6 +7,7 @@ This file records how AI was used to **build** Qill Switch and how AI **runs ins
 | Date (UTC) | Tool | What it did | Human review |
 |---|---|---|---|
 | 2026-11-14 | AI coding assistant | Read the build brief (`QILL_SWITCH_BUILD_PROMPT.md`), scaffolded the monorepo, LICENSE, README skeleton, `.env.example`, Gitleaks config | Reviewed by owner before push |
+| 2026-11-14 | AI coding assistant | Wrote `packages/pq` (ML-DSA-87 + canonical message), cross-language vectors and spike 1 (live `pqcVerify` check) | Spike output checked against testnet |
 
 The build brief is kept in the repo as `QILL_SWITCH_BUILD_PROMPT.md`.
 
