@@ -31,9 +31,36 @@ pqcKeyStatus(random addr) [ false, 0, '0x', false ]
   is documented on the precompiles page and works on testnet. We use it as an extra off-chain check.
 - viem needs the precompile addresses lowercase (mixed-case `0x…0A01` fails its checksum check).
 
+## Tooling decision: `@qorechain/sdk` instead of `qorechaind`
+
+`@qorechain/sdk@0.14.0` covers everything Phase 1 needs, so we do not shell out to `qorechaind`:
+unified eth_secp256k1 accounts (`unifiedAccountFromSeed`), `MsgRegisterPQCKeyV2` + proof of possession
+(`buildRegisterPqcKeyMsg`, `signProofOfPossession`), hybrid Cosmos-lane signing (`EthNativeSigner`),
+`openEvmWindowMsg` / `closeEvmWindowMsg` / `fetchEvmWindow`, spending rules, authenticators and
+`executeEvmMsg`. Wrappers live in `packages/chain/src/cosmos.ts`.
+
+Read-only checks against testnet (2026-11-14, `pnpm chain:status`):
+- REST `https://api-testnet.qore.host`, RPC `https://rpc-testnet.qore.host`.
+- `GET /qorechain/pqc/v1/evm_limits` → `tx_max_gas 30000000`, `precompile_input_max_bytes 16384`.
+- `GET /qorechain/abstractaccount/v1/config` → `enabled: true, max_session_keys 10, max_spending_rules 5`.
+
+**Findings that change the plan**
+- **Key separation:** accounts are built with `unifiedAccountFromSeed(seed, { pqcSecret })`, where `pqcSecret`
+  is independent of the ECDSA key. The drill bot gets the ECDSA key and learns nothing about the ML-DSA key.
+  (`deriveUnifiedAccount(mnemonic)` derives both from one mnemonic, so we avoid it.)
+- **"Register before funding"** cannot be literal: an account does not exist on chain (no account number)
+  until it receives funds. Bootstrap therefore sends the drill account *only* the registration fee
+  (0.15 QOR) from a separate funder account, registers immediately, verifies, then tops up.
+- **Scoped windows refuse contract creation** (`allowedTargets` doc in `@qorechain/evm/window`). Deployment
+  needs one short unscoped window (few blocks, `maxTxs` = number of contracts, tight `maxValue`), closed
+  right after. `openWindow()` refuses an unscoped window unless `allowContractCreation` is set.
+- `maxValue` counts value **plus** `gasLimit × maxFeePerGas` of every admitted tx, in uqor (1 uqor = 1e12 wei).
+- **Faucet:** a sign-in web form at `dashboard.qorechain.io/faucet` (100 QOR / 24 h), no API. A human claims it.
+- PQC key status precompile `0x…0A02` reports `possessionProven`; bootstrap checks it.
+
 ## Spike 2: open/close a scoped EVM window ⏳
 
-Needs `qorechaind` (not installed here) and a funded account. See "blocked on" in the phase report.
+`openWindow` / `closeWindow` are written; waiting for faucet funds to run them.
 
 ## Spike 3: smart account + rules + authenticator ⏳
 
@@ -49,6 +76,6 @@ Same as spike 2. Candidate path: `@qorechain/sdk@0.14.0` exposes a `MsgExecuteEV
 |---|---|
 | ML-DSA-87 byte encoding | ✅ noble FIPS 204, empty context (spike 1) |
 | Block time | ✅ ~1.44 s |
-| Faucet location | ⏳ not on the docs pages read so far |
+| Faucet location | ✅ dashboard.qorechain.io/faucet (sign-in form, 100 QOR / 24 h) |
 | ERC-20 amounts counted by AA spending rules? | ⏳ |
 | DEX on testnet? | ⏳ will deploy `MockPool` unless one is found |

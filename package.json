@@ -10,7 +10,10 @@
     "test": "pnpm -r test",
     "test:contracts": "pnpm --filter @qill/contracts test",
     "test:gas": "pnpm --filter @qill/contracts test:gas",
-    "typecheck": "pnpm -r typecheck"
+    "typecheck": "pnpm -r typecheck",
+    "keys:gen": "pnpm --filter @qill/chain exec tsx scripts/gen-keys.ts",
+    "chain:status": "pnpm --filter @qill/chain exec tsx scripts/status.ts",
+    "chain:bootstrap": "pnpm --filter @qill/chain exec tsx scripts/bootstrap.ts"
   },
   "devDependencies": {
     "typescript": "^5.6.3",
