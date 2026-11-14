@@ -58,9 +58,11 @@ Read-only checks against testnet (2026-11-14, `pnpm chain:status`):
 - **Faucet:** a sign-in web form at `dashboard.qorechain.io/faucet` (100 QOR / 24 h), no API. A human claims it.
 - PQC key status precompile `0x…0A02` reports `possessionProven`; bootstrap checks it.
 
-## Spike 2: open/close a scoped EVM window ⏳
+## Spike 2: open/close a scoped EVM window ✅
 
-`openWindow` / `closeWindow` are written; waiting for faucet funds to run them.
+Relayer opened a window with `allowedTargets = [vault]`, `maxTxs = 1`, `maxValue = 68,332 uqor`, 120 blocks; sent the
+owner-signed `pause()` (tx `0x555b810a…ee47`, 283,041 gas, real ML-DSA-87 signature through `pqcVerify`); closed
+and verified closed. Window query read the scope back as exactly the vault.
 
 ## Spike 3: smart account + rules + authenticator ⏳
 

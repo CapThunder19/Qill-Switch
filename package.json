@@ -16,7 +16,9 @@
     "chain:bootstrap": "pnpm --filter @qill/chain exec tsx scripts/bootstrap.ts",
     "chain:deploy": "pnpm --filter @qill/contracts build && pnpm --filter @qill/chain exec tsx scripts/deploy.ts",
     "owner": "pnpm --filter @qill/chain exec tsx scripts/owner-cmd.ts",
-    "attack": "pnpm --filter @qill/attack-bot attack"
+    "attack": "pnpm --filter @qill/attack-bot attack",
+    "panic": "pnpm --filter @qill/chain exec tsx scripts/panic.ts",
+    "drill:normal-tx": "pnpm --filter @qill/chain exec tsx scripts/normal-tx.ts"
   },
   "devDependencies": {
     "typescript": "^5.6.3",

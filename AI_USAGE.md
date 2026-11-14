@@ -11,6 +11,7 @@ This file records how AI was used to **build** Qill Switch and how AI **runs ins
 | 2026-11-14 | AI coding assistant | Wrote `QillVault.sol`, mocks, Foundry unit/fuzz/invariant tests; compile-checked with solc 0.8.24 (viaIR) | Owner to review contract |
 | 2026-11-14 | AI coding assistant | Switched contracts to Hardhat 3 (owner request), fixed a test-helper overflow; 42/42 Solidity tests pass | Test output reviewed |
 | 2026-11-14 | AI coding assistant | Wrote `packages/chain` (SDK-based accounts, hybrid signing, PQC registration, windows) and key generation outside the repo | Secret scan of staged tree before commit |
+| 2026-11-14 | AI coding assistant | Bootstrapped + deployed to testnet, relayed owner-signed pause, wrote attack bot (0/32 successes), DRILL_RUNBOOK.md, THREAT_MODEL.md v1 | Owner to review before drill registration |
 
 The build brief is kept in the repo as `QILL_SWITCH_BUILD_PROMPT.md`.
 
