@@ -125,7 +125,7 @@ export interface SendOpts {
 export async function sendMsgs(acct: UnifiedAccount, messages: EncodeObject[], opts: SendOpts = {}) {
   const info = await getAccountInfo(acct.cosmos);
   if (!info) throw new TxFailed(`account ${acct.cosmos} does not exist on chain (no funds yet)`);
-  const gas = opts.gas ?? 400_000;
+  const gas = opts.gas ?? 600_000;
   const price = opts.gasPriceUqor ?? 0.15;
   const fee: StdFee = { amount: [{ denom: NET.denom, amount: String(Math.ceil(gas * price)) }], gas: String(gas) };
   const signer = new EthNativeSigner(acct, { signMode: opts.classical ? "classical" : "hybrid", rest: NET.rest });
@@ -175,7 +175,7 @@ export async function bankSend(from: UnifiedAccount, to: string, amountUqor: big
     typeUrl: "/cosmos.bank.v1beta1.MsgSend",
     value: { fromAddress: from.cosmos, toAddress: to, amount: [{ denom: NET.denom, amount: amountUqor.toString() }] },
   };
-  return sendMsgs(from, [msg], { gas: 200_000 });
+  return sendMsgs(from, [msg], { gas: 500_000 });
 }
 
 // ------------------------------------------------------------------ EVM windows
@@ -204,14 +204,14 @@ export async function openWindow(acct: UnifiedAccount, w: WindowSpec) {
     ...(w.allowedTargets?.length ? { allowedTargets: w.allowedTargets } : {}),
     ...(w.nativeOnly ? { nativeOnly: true } : {}),
   });
-  return sendMsgs(acct, [msg], { gas: 300_000 });
+  return sendMsgs(acct, [msg], { gas: 600_000 });
 }
 
 /** Close the window and verify it is gone (or no longer live). */
 export async function closeWindow(acct: UnifiedAccount) {
   const before = await evmWindow(acct.cosmos);
   let txHash: string | undefined;
-  if (before.found) txHash = (await sendMsgs(acct, [closeEvmWindowMsg(acct.cosmos)], { gas: 200_000 })).transactionHash;
+  if (before.found) txHash = (await sendMsgs(acct, [closeEvmWindowMsg(acct.cosmos)], { gas: 500_000 })).transactionHash;
   const after = await evmWindow(acct.cosmos);
   if (after.found && after.live) throw new Error(`window for ${acct.cosmos} still live after close`);
   return { txHash, closed: true };
