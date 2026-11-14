@@ -1,0 +1,15 @@
+[relayer] qor1w7n2vv7w8e32fzlrwzvy5jqjgkdwmsyaxmp84v / 0x77A6A633Ce3e62A48bE370984a4812459Aedc09D balance 15 QOR, pqc registered
+[agentacct] qor1l25g5qxf2mmftw7w3mhwsmfe63klcaerqrlxce / 0xFAA88a00c956f695bBce8eeee86D39d46DfC7723 balance 1 QOR, pqc registered
+[agent] link key 0x85eCEBf9CEE963ADaDa6b88f873bA58ecBed637E
+[demo] vault 0xd6311846F282FBd2Fc486f2FbA1b85c5Ba16d8A3 executor 0xFAA88a00c956f695bBce8eeee86D39d46DfC7723 paused false
+[mandate] exists, status 1
+[link] tx 6D47E39C60C9569742CD806F26D5865538C840338C4878C9708DD306ECEE317B
+[rules] {"rules":[{"id":"qill-agent-trade","dailyLimit":"10000","perTxLimit":"1000","allowedDenoms":["uqor"],"enabled":true,"allowedEvmCalls":["0xd6311846f282fbd2fc486f2fba1b85c5ba16d8a3/0xbdf78660"],"denomLimits":[]}],"authenticatorRules":[]}
+[authenticators] [{"scheme":"secp256k1","pubkeyHex":"85ecebf9cee963adada6b88f873ba58ecbed637e","permissions":["evm"],"expiryUnix":"1795274416","label":"qill-agent","createdAtUnix":"1794669617","revoked":false,"hasSpendRule":false}]
+[smart] window {"found":false,"live":false,"openedHeight":"0","expiryHeight":"0","maxTxs":"0","usedTxs":"0","maxValue":"0","usedValue":"0","remainingBlocks":"0","remainingTxs":"0","remainingValue":"0","nativeOnly":false,"allowedTargets":[]}
+[trade ok] tx 5C8888DA3A823C8BF053E1F14E0C2521967985824A0EC5C5F0DEFB77956BB19F authNonce 0 digest v2 | vault A 10000000000000000000000→9990000000000000000000 B 10000000000000000000000→10009969006090092817746
+ok [call outside allowed_evm_calls (Token A approve)] rejected: abstractaccount_execution_failed in 7A9B5A29E6D236CE0934313E327C057C22FAA521C96B017B72C7A9A9E259A309
+ok [vault function other than trade (pause selector)] rejected: abstractaccount_execution_failed in 183A3F344B4C96C198C6F6DBB32770BE48C3807979F378626E75E334BA87AB28
+ok [trade over per-trade cap (150)] rejected: abstractaccount_execution_failed in 61CDB9CB4AA1DAFB159EB1B64C9E2049ACD16758C09F8DF3C42503C6FDB37A7D
+ok [trade above soft limit without guardian (50)] rejected: abstractaccount_execution_failed in 813AAFA03A686FEB222BCF298C3F04C7CC001D73344EC3A3730D3B9B764E91E0
+selector 0xbdf78660 smart 0xFAA88a00c956f695bBce8eeee86D39d46DfC7723 relayer 0x77A6A633Ce3e62A48bE370984a4812459Aedc09D

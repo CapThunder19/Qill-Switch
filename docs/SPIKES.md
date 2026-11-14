@@ -64,13 +64,40 @@ Relayer opened a window with `allowedTargets = [vault]`, `maxTxs = 1`, `maxValue
 owner-signed `pause()` (tx `0x555b810a…ee47`, 283,041 gas, real ML-DSA-87 signature through `pqcVerify`); closed
 and verified closed. Window query read the scope back as exactly the vault.
 
-## Spike 3: smart account + rules + authenticator ⏳
+## Spike 3: smart account + rules + authenticator ✅
 
-Same as spike 2.
+`packages/chain/scripts/spike-aa.ts`, runs in [docs/spike-aa-run-2.txt](spike-aa-run-2.txt) and [-3](spike-aa-run-3.txt). Separate
+`relayer` and `agentacct` accounts and a separate demo vault (`deployments/demo.json`); the drill account and drill vault
+are not touched.
 
-## Spike 4: one `MsgExecuteEVM` ⏳
+- **Smart account = a PQC-registered account that owns itself** (SDK-recommended form, `account == owner`). No
+  `MsgCreateAbstractAccount` needed: `linkAuthenticatorMsgs` sends `[MsgUpdateSpendingRules, MsgRegisterAuthenticator]` in one
+  hybrid tx signed by the account.
+- Agent key = a plain secp256k1 key linked **by its 20-byte address** (scheme `secp256k1`), possession proof = EIP-191
+  `personal_sign` of `authenticatorLinkMessage`. Permissions `["evm"]` only, expiry 7 days.
+- Rule read back exactly as sent:
+  `{"id":"qill-agent-trade","perTxLimit":"1000","dailyLimit":"10000","allowedDenoms":["uqor"],"enabled":true,"allowedEvmCalls":["0xd631…d8a3/0xbdf78660"]}`.
+- `GET …/abstractaccount/v1/accounts/{addr}/authenticators` answers **404 "account not found"** until the first link;
+  `readAuthenticators`/`readRules` treat exactly that as empty.
 
-Same as spike 2. Candidate path: `@qorechain/sdk@0.14.0` exposes a `MsgExecuteEVM` composer (per the SDK overview page).
+## Spike 4: `MsgExecuteEVM` ✅
+
+- Agent signs the **v2** digest (binds `gasLimit`; `resolveEvmAuthDigestVersion` → `v2` on testnet) via the SDK's
+  `buildMetaMaskExecuteEvm` with a local EIP-1193 `personal_sign` shim; the relayer broadcasts hybrid-signed and pays fees.
+- **The smart account needs no EVM window** for `MsgExecuteEVM`: the linked-key signature + rule is the authorisation.
+- In-mandate trade 10 A → 9.97 B succeeded (`msg.sender` in the vault = smart account = `executor`).
+- Every negative came back as a **code-0 tx with `abstractaccount_execution_failed`** (as the brief warned); `sendMsgs`
+  throws with the event's `reason`:
+
+| Attempt | Stopped by | Reason |
+|---|---|---|
+| Token A `approve` | chain spending rule | "a linked key with a spending rule may call 0x… with data only if the rule lists the call" |
+| vault `pause` selector | chain spending rule | same |
+| trade 150 (> per-trade cap 100) | vault | `execution reverted` (`OverPerTradeCap`) |
+| trade 50 (> soft limit 40, no guardian) | vault | `execution reverted` (`GuardianRequired`) |
+
+- A failed execution **consumes the key's auth nonce** (the 2nd run started at nonce 5), so a failed signature can never be
+  relayed again. Each failure still costs the relayer the tx fee.
 
 ## Other unknowns
 
@@ -79,5 +106,5 @@ Same as spike 2. Candidate path: `@qorechain/sdk@0.14.0` exposes a `MsgExecuteEV
 | ML-DSA-87 byte encoding | ✅ noble FIPS 204, empty context (spike 1) |
 | Block time | ✅ ~1.44 s |
 | Faucet location | ✅ dashboard.qorechain.io/faucet (sign-in form, 100 QOR / 24 h) |
-| ERC-20 amounts counted by AA spending rules? | ⏳ |
-| DEX on testnet? | ⏳ will deploy `MockPool` unless one is found |
+| ERC-20 amounts counted by AA spending rules? | ✅ From v3.2.2 the EVM lane measures native value, native balance decrease, bank coins and the balance/allowance change of every ERC-20 listed in `allowed_denoms` (SDK `SpendingRule` docs). Our smart account holds no tokens; the vault enforces token caps. |
+| DEX on testnet? | Using our own `MockPool` (no liquidity can be removed); no public DEX needed for the demo |

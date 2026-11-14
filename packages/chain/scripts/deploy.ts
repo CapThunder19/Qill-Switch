@@ -9,12 +9,17 @@
  *
  *   pnpm --filter @qill/chain exec tsx scripts/deploy.ts            # dry run: estimate only
  *   pnpm --filter @qill/chain exec tsx scripts/deploy.ts --execute  # deploy
+ *
+ * Options (defaults reproduce the drill deployment):
+ *   --deployer <account>   key name in QILL_KEY_DIR (default: drill)
+ *   --executor <0x..>      vault executor (default: 0x0)
+ *   --name <name>          writes deployments/<name>.json (default: the chain id); never overwrites an existing file
  */
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import {
   createPublicClient, createWalletClient, http, defineChain, encodeDeployData, encodeFunctionData,
-  type Abi, type Hex, type Address, zeroAddress, getContractAddress,
+  type Abi, type Hex, type Address, zeroAddress, getContractAddress, isAddress,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { evmWindowCost } from "@qorechain/evm/window";
@@ -23,10 +28,18 @@ import { loadAccount, keyDir, REPO_ROOT } from "../src/accounts.js";
 import { NET, openWindow, closeWindow, evmWindow, getBalance } from "../src/cosmos.js";
 
 const EXECUTE = process.argv.includes("--execute");
+const opt = (k: string) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : undefined; };
+const DEPLOYER = opt("--deployer") ?? "drill";
+const EXECUTOR = (opt("--executor") ?? zeroAddress) as Address;
+const OUT_NAME = opt("--name") ?? NET.chainId;
+const OUT_FILE = join(REPO_ROOT, "deployments", `${OUT_NAME}.json`);
+if (!/^[a-z0-9-]+$/.test(OUT_NAME)) throw new Error("bad --name");
+if (!isAddress(EXECUTOR)) throw new Error("bad --executor");
+if (existsSync(OUT_FILE)) throw new Error(`${OUT_FILE} exists; refusing to overwrite a deployment record (pick another --name)`);
 const ONE = 10n ** 18n;
 const LIQ = 100_000n * ONE; // per token, locked forever in the pool
 const VAULT_SEED = 10_000n * ONE; // per token, held by the vault
-const SUPPLY = LIQ + VAULT_SEED; // nothing left on the drill EOA
+const SUPPLY = LIQ + VAULT_SEED; // nothing left on the deployer EOA
 
 const qore = defineChain({ id: NET.evmChainId, name: NET.chainId, nativeCurrency: { name: "QOR", symbol: "QOR", decimals: 18 },
   rpcUrls: { default: { http: [NET.evmRpc] } } });
@@ -41,7 +54,7 @@ const POOL = artifact("mocks/MockPool.sol/MockPool.json");
 const VAULT = artifact("QillVault.sol/QillVault.json");
 
 async function main() {
-  const drill = loadAccount("drill");
+  const drill = loadAccount(DEPLOYER);
   const eoa = privateKeyToAccount(drill.privateKey as Hex);
   if (eoa.address.toLowerCase() !== drill.evm.toLowerCase()) throw new Error("key/address mismatch");
   const wallet = createWalletClient({ account: eoa, chain: qore, transport: http() });
@@ -62,7 +75,7 @@ async function main() {
     { label: "deploy Token A", data: encodeDeployData({ ...ERC20, args: ["Qill Test A", "QTA", eoa.address, SUPPLY] }), gas: 0n },
     { label: "deploy Token B", data: encodeDeployData({ ...ERC20, args: ["Qill Test B", "QTB", eoa.address, SUPPLY] }), gas: 0n },
     { label: "deploy MockPool", data: encodeDeployData({ ...POOL, args: [tokA, tokB] }), gas: 0n },
-    { label: "deploy QillVault", data: encodeDeployData({ ...VAULT, args: [ownerHash, guardianHash, zeroAddress, [tokA, tokB], [pool]] }), gas: 0n },
+    { label: "deploy QillVault", data: encodeDeployData({ ...VAULT, args: [ownerHash, guardianHash, EXECUTOR, [tokA, tokB], [pool]] }), gas: 0n },
     { label: "A.approve(pool)", to: tokA, data: erc20("approve", [pool, LIQ]), gas: 80_000n },
     { label: "B.approve(pool)", to: tokB, data: erc20("approve", [pool, LIQ]), gas: 80_000n },
     { label: "pool.addLiquidity", to: pool, data: encodeFunctionData({ abi: POOL.abi, functionName: "addLiquidity", args: [LIQ, LIQ] }), gas: 220_000n },
@@ -86,7 +99,7 @@ async function main() {
   if (!EXECUTE) { console.log("\ndry run only; pass --execute to deploy"); return; }
 
   const w0 = await evmWindow(drill.cosmos);
-  if (w0.found && w0.live) throw new Error("drill already has a live window; close it first");
+  if (w0.found && w0.live) throw new Error(`${DEPLOYER} already has a live window; close it first`);
 
   const hashes: Record<string, Hex> = {};
   try {
@@ -114,23 +127,23 @@ async function main() {
   const checks = {
     ownerKeyHash: (await read("ownerKeyHash")) === ownerHash,
     guardianKeyHash: (await read("guardianKeyHash")) === guardianHash,
-    executorIsZero: (await read("executor")) === zeroAddress,
+    executorAsConfigured: ((await read("executor")) as string).toLowerCase() === EXECUTOR.toLowerCase(),
     tokenAAllowed: await read("tokenAllowed", [tokA]),
     tokenBAllowed: await read("tokenAllowed", [tokB]),
     poolAllowed: await read("poolAllowed", [pool]),
     vaultA: (await bal(tokA, vault)) === VAULT_SEED,
     vaultB: (await bal(tokB, vault)) === VAULT_SEED,
-    drillHoldsNoA: (await bal(tokA, eoa.address)) === 0n,
-    drillHoldsNoB: (await bal(tokB, eoa.address)) === 0n,
+    deployerHoldsNoA: (await bal(tokA, eoa.address)) === 0n,
+    deployerHoldsNoB: (await bal(tokB, eoa.address)) === 0n,
   };
   console.log("checks", checks);
   if (Object.values(checks).some((v) => v !== true)) throw new Error("post-deploy check failed");
 
-  const out = { network: NET.chainId, evmChainId: NET.evmChainId, deployer: eoa.address, deployedAt: new Date().toISOString(),
+  const out = { name: OUT_NAME, executor: EXECUTOR, network: NET.chainId, evmChainId: NET.evmChainId, deployer: eoa.address, deployedAt: new Date().toISOString(),
     contracts: { QillVault: vault, MockPool: pool, TokenA: tokA, TokenB: tokB }, ownerKeyHash: ownerHash, guardianKeyHash: guardianHash, txs: hashes };
   mkdirSync(join(REPO_ROOT, "deployments"), { recursive: true });
-  writeFileSync(join(REPO_ROOT, "deployments", `${NET.chainId}.json`), JSON.stringify(out, null, 2));
-  console.log("wrote deployments/" + NET.chainId + ".json");
+  writeFileSync(OUT_FILE, JSON.stringify(out, null, 2), { flag: "wx" });
+  console.log("wrote", OUT_FILE);
 }
 
 await main();

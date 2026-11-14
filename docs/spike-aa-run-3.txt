@@ -1,0 +1,15 @@
+[relayer] qor1w7n2vv7w8e32fzlrwzvy5jqjgkdwmsyaxmp84v / 0x77A6A633Ce3e62A48bE370984a4812459Aedc09D balance 15 QOR, pqc registered
+[agentacct] qor1l25g5qxf2mmftw7w3mhwsmfe63klcaerqrlxce / 0xFAA88a00c956f695bBce8eeee86D39d46DfC7723 balance 1 QOR, pqc registered
+[agent] link key 0x85eCEBf9CEE963ADaDa6b88f873bA58ecBed637E
+[demo] vault 0xd6311846F282FBd2Fc486f2FbA1b85c5Ba16d8A3 executor 0xFAA88a00c956f695bBce8eeee86D39d46DfC7723 paused false
+[mandate] exists, status 1
+[link] tx A1BC52362AEA5D8115F9084984DF1646EE1077E19A32E5DAEB9E431B9EDF7772
+[rules] {"rules":[{"id":"qill-agent-trade","dailyLimit":"10000","perTxLimit":"1000","allowedDenoms":["uqor"],"enabled":true,"allowedEvmCalls":["0xd6311846f282fbd2fc486f2fba1b85c5ba16d8a3/0xbdf78660"],"denomLimits":[]}],"authenticatorRules":[]}
+[authenticators] [{"scheme":"secp256k1","pubkeyHex":"85ecebf9cee963adada6b88f873ba58ecbed637e","permissions":["evm"],"expiryUnix":"1795274474","label":"qill-agent","createdAtUnix":"1794669674","revoked":false,"hasSpendRule":false}]
+[smart] window {"found":false,"live":false,"openedHeight":"0","expiryHeight":"0","maxTxs":"0","usedTxs":"0","maxValue":"0","usedValue":"0","remainingBlocks":"0","remainingTxs":"0","remainingValue":"0","nativeOnly":false,"allowedTargets":[]}
+[trade ok] tx 032EE4B4438CE6A92983F776E6FC3D60A8C1ABE22BDD412A2E2564FAB8FD38C1 authNonce 5 digest v2 | vault A 9990000000000000000000→9980000000000000000000 B 10009969006090092817746→10019936021767154926189
+ok [call outside allowed_evm_calls (Token A approve)] rejected: abstractaccount_execution_failed (a linked key with a spending rule may call 0xE75F85Fe7d816ae9CA1D133CDe787747CB9C3239 with data only if the rule lists the cal
+ok [vault function other than trade (pause selector)] rejected: abstractaccount_execution_failed (a linked key with a spending rule may call 0xd6311846F282FBd2Fc486f2FbA1b85c5Ba16d8A3 with data only if the rule lists the cal
+ok [trade over per-trade cap (150)] rejected: abstractaccount_execution_failed (execution reverted: evm transaction execution failed) in 58900286B3DC4BAD5F046BEC2C5F0A6C6FBC462F0F9296FC2ABCD6794A81F2D2
+ok [trade above soft limit without guardian (50)] rejected: abstractaccount_execution_failed (execution reverted: evm transaction execution failed) in 60695A001F7C1D734AD9F9B19D5D3FCD3FBD1DEA8487384C84E59A99DEFC176B
+selector 0xbdf78660 smart 0xFAA88a00c956f695bBce8eeee86D39d46DfC7723 relayer 0x77A6A633Ce3e62A48bE370984a4812459Aedc09D

@@ -35,7 +35,28 @@ export function ownerKey(): MlDsaKeypair {
 export type OwnerAuth = { pubkey: Hex; signature: Hex; nonce: bigint; expiry: bigint };
 
 /** Owner commands: Solidity function name, action id, params ABI. */
+export const MANDATE_PARAMS_TYPE = {
+  type: "tuple",
+  components: [
+    { name: "id", type: "bytes32" },
+    { name: "textHash", type: "bytes32" },
+    { name: "rulesHash", type: "bytes32" },
+    { name: "expiry", type: "uint64" },
+    { name: "pools", type: "address[]" },
+    { name: "tokens", type: "address[]" },
+    { name: "perTradeCap", type: "uint256[]" },
+    { name: "dailyCap", type: "uint256[]" },
+    { name: "softLimit", type: "uint256[]" },
+  ],
+} as const;
+
+export interface MandateParams {
+  id: Hex; textHash: Hex; rulesHash: Hex; expiry: bigint;
+  pools: Address[]; tokens: Address[]; perTradeCap: bigint[]; dailyCap: bigint[]; softLimit: bigint[];
+}
+
 export const COMMANDS = {
+  createMandate: { fn: "createMandate", action: "CREATE_MANDATE", types: [MANDATE_PARAMS_TYPE] },
   pause: { fn: "pause", action: "PAUSE", types: [] },
   resume: { fn: "resume", action: "RESUME", types: [] },
   qDay: { fn: "qDay", action: "Q_DAY", types: [] },

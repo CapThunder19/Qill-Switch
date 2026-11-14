@@ -140,8 +140,11 @@ export async function sendMsgs(acct: UnifiedAccount, messages: EncodeObject[], o
   if (res.code !== 0) throw new TxFailed(`tx failed: ${res.rawLog}`, res.transactionHash);
   const full = lastTx.get(res.transactionHash);
   const events: any[] = full?.events ?? [];
-  if (events.some((e) => e.type === EXECUTION_FAILED_EVENT))
-    throw new TxFailed(`${EXECUTION_FAILED_EVENT} in ${res.transactionHash}`, res.transactionHash);
+  const failed = events.filter((e) => e.type === EXECUTION_FAILED_EVENT);
+  if (failed.length) {
+    const reasons = failed.map((e) => (e.attributes ?? []).find((a: any) => a.key === "reason")?.value ?? "?").join("; ");
+    throw new TxFailed(`${EXECUTION_FAILED_EVENT} (${reasons}) in ${res.transactionHash}`, res.transactionHash);
+  }
   return { ...res, events };
 }
 
