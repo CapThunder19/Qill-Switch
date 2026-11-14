@@ -1,0 +1,17 @@
+{
+  "name": "@qill/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "hardhat build",
+    "test": "hardhat test solidity",
+    "test:gas": "hardhat test solidity --gas-stats"
+  },
+  "devDependencies": {
+    "hardhat": "3.22.0",
+    "@nomicfoundation/hardhat-toolbox-viem": "5.0.7",
+    "viem": "^2.21.0"
+  }
+}

@@ -8,7 +8,8 @@ This file records how AI was used to **build** Qill Switch and how AI **runs ins
 |---|---|---|---|
 | 2026-11-14 | AI coding assistant | Read the build brief (`QILL_SWITCH_BUILD_PROMPT.md`), scaffolded the monorepo, LICENSE, README skeleton, `.env.example`, Gitleaks config | Reviewed by owner before push |
 | 2026-11-14 | AI coding assistant | Wrote `packages/pq` (ML-DSA-87 + canonical message), cross-language vectors and spike 1 (live `pqcVerify` check) | Spike output checked against testnet |
-| 2026-11-14 | AI coding assistant | Wrote `QillVault.sol`, mocks, Foundry unit/fuzz/invariant tests; compile-checked with solc 0.8.24 (viaIR) | Owner to review contract; tests to be run with `forge test` |
+| 2026-11-14 | AI coding assistant | Wrote `QillVault.sol`, mocks, Foundry unit/fuzz/invariant tests; compile-checked with solc 0.8.24 (viaIR) | Owner to review contract |
+| 2026-11-14 | AI coding assistant | Switched contracts to Hardhat 3 (owner request), fixed a test-helper overflow; 42/42 Solidity tests pass | Test output reviewed |
 
 The build brief is kept in the repo as `QILL_SWITCH_BUILD_PROMPT.md`.
 

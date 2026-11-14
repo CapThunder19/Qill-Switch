@@ -2,5 +2,6 @@ packages:
   - "packages/*"
   - "apps/*"
   - "spikes"
+  - "contracts"
 allowBuilds:
   esbuild: true

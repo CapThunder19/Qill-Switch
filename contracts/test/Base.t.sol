@@ -63,7 +63,7 @@ abstract contract Base is Test {
 
     function _fakePubkey(uint8 fill) internal pure returns (bytes memory pk) {
         pk = new bytes(2592);
-        for (uint256 i; i < pk.length; ++i) pk[i] = bytes1(uint8(fill + uint8(i)));
+        for (uint256 i; i < pk.length; ++i) pk[i] = bytes1(uint8((uint256(fill) + i) % 256));
     }
 
     function _mockSign(bytes memory pk, bytes memory message) internal pure returns (bytes memory) {

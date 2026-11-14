@@ -29,3 +29,9 @@ Thumbs.db
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# hardhat
+contracts/artifacts/
+contracts/cache/
+contracts/types/
+contracts/ignition/deployments/chain-31337/

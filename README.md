@@ -24,11 +24,20 @@ Built for the QoreChain "Build Before Q-Day" Developer Fest, track **Post-Quantu
 ## Repo layout
 
 ```
-contracts/      Foundry: QillVault, IQorePQC, mocks, tests
+contracts/      Hardhat 3: QillVault, IQorePQC, mocks, Solidity tests (forge-std style)
 packages/pq     ML-DSA-87 helpers + canonical message encoding
 packages/chain  EVM (viem) + Cosmos helpers
 packages/mandate mandate schema, compiler, validator
 apps/*          agent, guardian, relayer, cli, dashboard, challenge, attack-bot
+```
+
+## Run the tests
+
+```sh
+pnpm install
+pnpm test:contracts         # 42 Solidity tests via Hardhat 3 (unit, fuzz x1000, invariant x256)
+pnpm test:gas               # same, with gas statistics
+pnpm --filter @qill/pq test # ML-DSA-87 + canonical message tests
 ```
 
 ## Testnet addresses
@@ -37,8 +46,8 @@ _To be filled after deployment._
 
 ## Credits
 
-- [Foundry](https://github.com/foundry-rs/foundry) (MIT/Apache-2.0): contract build and test
-- [forge-std](https://github.com/foundry-rs/forge-std) (MIT/Apache-2.0)
+- [Hardhat 3](https://hardhat.org) + [hardhat-toolbox-viem](https://www.npmjs.com/package/@nomicfoundation/hardhat-toolbox-viem) (MIT): contract build, Solidity tests (fuzz + invariant), deployment
+- [forge-std](https://github.com/foundry-rs/forge-std) (MIT/Apache-2.0): test cheatcodes and assertions, run by Hardhat's Solidity test runner
 - [viem](https://viem.sh) (MIT): EVM client
 - [@noble/post-quantum](https://github.com/paulmillr/noble-post-quantum) (MIT): ML-DSA-87 / ML-KEM-1024
 - [@qorechain/sdk](https://www.npmjs.com/package/@qorechain/sdk), [@qorechain/evm](https://www.npmjs.com/package/@qorechain/evm): QoreChain SDK
