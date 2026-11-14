@@ -8,7 +8,7 @@ import { encodeMessage, actionId, keygen, sign, pubkeyHash, type ActionName } fr
 
 const seed = new Uint8Array(32).fill(7);
 const kp = keygen(seed);
-const contract = "0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f" as const; // first `new` in a forge test (deployer = test contract)
+const contract = "0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f" as const; // arbitrary; the Foundry test uses QillMessage.encodeFor
 
 const cases: { action: ActionName; params: `0x${string}`; nonce: bigint; expiry: bigint }[] = [
   { action: "PAUSE", params: "0x", nonce: 0n, expiry: 1_800_000_000n },
