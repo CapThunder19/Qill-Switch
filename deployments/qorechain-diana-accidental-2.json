@@ -21,5 +21,6 @@
     "pool.addLiquidity": "0x11a77a9c9e1fc86f8c35522f0a53412b151004c4ab9d75f7c055305ade99e925",
     "A.transfer(vault)": "0x8535772136af81a22201ed297db68133b645379c9832af859ecc69b5ccc64fe5",
     "B.transfer(vault)": "0x8c21403452adaa7aaabc867d555933338a009decbd389de24ba1d255e2e2e8a1"
-  }
+  },
+  "note": "Deployed by mistake (tooling error). Paused by owner ML-DSA signature; not used."
 }
