@@ -36,6 +36,18 @@ importers:
         specifier: ^2.21.0
         version: 2.57.19(typescript@5.9.3)(zod@3.25.76)
 
+  apps/cli:
+    dependencies:
+      '@qill/chain':
+        specifier: workspace:*
+        version: link:../../packages/chain
+      '@qill/mandate':
+        specifier: workspace:*
+        version: link:../../packages/mandate
+      viem:
+        specifier: ^2.21.0
+        version: 2.57.19(typescript@5.9.3)(zod@4.6.7)
+
   contracts:
     devDependencies:
       '@nomicfoundation/hardhat-toolbox-viem':

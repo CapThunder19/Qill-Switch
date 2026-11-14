@@ -1,0 +1,10 @@
+{
+  "name": "@qill/cli",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "bin": { "qill": "src/index.ts" },
+  "scripts": { "qill": "tsx src/index.ts", "typecheck": "tsc --noEmit" },
+  "dependencies": { "@qill/chain": "workspace:*", "@qill/mandate": "workspace:*", "viem": "^2.21.0" }
+}

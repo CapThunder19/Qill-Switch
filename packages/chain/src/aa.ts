@@ -140,6 +140,33 @@ function diffRules(want: SpendingRuleInput[], got: any) {
   });
 }
 
+/**
+ * Replace the smart account's rules (MsgUpdateSpendingRules REPLACES ALL rules, so `rules` must be the full set),
+ * then read back and diff. Refuses an empty set and any disabled rule: in x/abstractaccount, no rule or
+ * `enabled:false` means NO limit.
+ */
+export async function setRules(smart: UnifiedAccount, rules: SpendingRuleInput[]) {
+  if (rules.length === 0) throw new Error("refusing an empty rule set (no rule = no limit)");
+  if (rules.some((r) => r.enabled !== true)) throw new Error("refusing a disabled rule (enabled:false = no limit)");
+  validateSpendingRules(rules as any);
+  const msg: EncodeObject = {
+    typeUrl: "/qorechain.abstractaccount.v1.MsgUpdateSpendingRules",
+    value: {
+      owner: smart.cosmos,
+      accountAddress: smart.cosmos,
+      rules: rules.map((r) => ({
+        id: r.id ?? "", enabled: true,
+        perTxLimit: String(r.perTxLimit ?? "0"), dailyLimit: String(r.dailyLimit ?? "0"),
+        allowedDenoms: r.allowedDenoms ?? [], allowedEvmCalls: r.allowedEvmCalls ?? [], denomLimits: r.denomLimits ?? [],
+      })),
+    },
+  };
+  const res = await sendMsgs(smart, [msg], { gas: 500_000 });
+  const back = await readRules(smart.cosmos);
+  diffRules(rules, back);
+  return { txHash: res.transactionHash, rules: back };
+}
+
 export async function revokeAgentKey(smart: UnifiedAccount, agentAddress: Address) {
   const msg = revokeAuthenticatorMsg({ owner: smart.cosmos, scheme: "secp256k1", pubkey: hexToBytes(agentAddress) });
   return sendMsgs(smart, [msg], { gas: 500_000 });

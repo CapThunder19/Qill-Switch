@@ -1,0 +1,66 @@
+{
+  "aaRules": [
+    {
+      "allowedDenoms": [
+        "uqor"
+      ],
+      "allowedEvmCalls": [
+        "0xd6311846f282fbd2fc486f2fba1b85c5ba16d8a3/0xbdf78660"
+      ],
+      "dailyLimit": "10000",
+      "denomLimits": [],
+      "enabled": true,
+      "id": "qill-agent-trade",
+      "perTxLimit": "1000"
+    }
+  ],
+  "allowedEvmCalls": [
+    "0xd6311846f282fbd2fc486f2fba1b85c5ba16d8a3/0xbdf78660"
+  ],
+  "deployment": "demo",
+  "draft": {
+    "dailyCap": "150",
+    "expiryDays": 5,
+    "perTradeCap": "50",
+    "pools": [
+      "demo-pool"
+    ],
+    "schedule": null,
+    "softLimit": "20",
+    "template": "swap",
+    "tokens": [
+      "QTA",
+      "QTB"
+    ]
+  },
+  "rulesHash": "0x7f02d59ea85ce83a566cd891086148dc96adabad9629adb1844afa8bf792f24f",
+  "rulesJson": "{\"dailyCap\":[\"150000000000000000000\",\"150000000000000000000\"],\"expiry\":\"1795102004\",\"perTradeCap\":[\"50000000000000000000\",\"50000000000000000000\"],\"pools\":[\"0x951c8304d7dca38321c041138da22e94956fe4b3\"],\"schedule\":null,\"smartAccountRules\":[{\"allowedDenoms\":[\"uqor\"],\"allowedEvmCalls\":[\"0xd6311846f282fbd2fc486f2fba1b85c5ba16d8a3/0xbdf78660\"],\"dailyLimit\":\"10000\",\"denomLimits\":[],\"enabled\":true,\"id\":\"qill-agent-trade\",\"perTxLimit\":\"1000\"}],\"softLimit\":[\"20000000000000000000\",\"20000000000000000000\"],\"template\":\"swap\",\"tokens\":[\"0xe75f85fe7d816ae9ca1d133cde787747cb9c3239\",\"0xc380e4f165e59eee3a1cc7dad4b4514d48e52149\"],\"vault\":\"0xd6311846f282fbd2fc486f2fba1b85c5ba16d8a3\",\"version\":1}",
+  "source": "template",
+  "text": "Trade QTA and QTB on demo-pool. Max 50 per trade, 150 per day, guardian above 20, for 5 days.",
+  "textHash": "0x5781b76cb5ce42ea53dd793fffc4163498afa1e1a4e6a1f214bc0943c84c89dc",
+  "vaultParams": {
+    "dailyCap": [
+      "150000000000000000000",
+      "150000000000000000000"
+    ],
+    "expiry": "1795102004",
+    "id": "0x8fc3c2859bc122fb104d389def63b663e81d63ded02da84d93637fd8d4decd63",
+    "perTradeCap": [
+      "50000000000000000000",
+      "50000000000000000000"
+    ],
+    "pools": [
+      "0x951c8304D7DCa38321c041138DA22e94956fe4B3"
+    ],
+    "rulesHash": "0x7f02d59ea85ce83a566cd891086148dc96adabad9629adb1844afa8bf792f24f",
+    "softLimit": [
+      "20000000000000000000",
+      "20000000000000000000"
+    ],
+    "textHash": "0x5781b76cb5ce42ea53dd793fffc4163498afa1e1a4e6a1f214bc0943c84c89dc",
+    "tokens": [
+      "0xE75F85Fe7d816ae9CA1D133CDe787747CB9C3239",
+      "0xC380E4f165E59EeE3a1CC7Dad4B4514D48e52149"
+    ]
+  }
+}
