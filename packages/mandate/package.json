@@ -1,0 +1,22 @@
+{
+  "name": "@qill/mandate",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "1.8.0",
+    "@qill/chain": "workspace:*",
+    "@qorechain/sdk": "0.14.0",
+    "viem": "^2.21.0",
+    "zod": "4.6.7"
+  }
+}
