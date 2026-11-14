@@ -35,3 +35,6 @@ contracts/artifacts/
 contracts/cache/
 contracts/types/
 contracts/ignition/deployments/chain-31337/
+
+# runtime logs
+logs/

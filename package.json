@@ -19,7 +19,8 @@
     "attack": "pnpm --filter @qill/attack-bot attack",
     "panic": "pnpm --filter @qill/chain exec tsx scripts/panic.ts",
     "drill:normal-tx": "pnpm --filter @qill/chain exec tsx scripts/normal-tx.ts",
-    "qill": "pnpm --silent --filter @qill/cli qill"
+    "qill": "pnpm --silent --filter @qill/cli qill",
+    "agent": "pnpm --silent --filter @qill/agent agent"
   },
   "devDependencies": {
     "typescript": "^5.6.3",

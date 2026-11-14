@@ -13,6 +13,7 @@ This file records how AI was used to **build** Qill Switch and how AI **runs ins
 | 2026-11-14 | AI coding assistant | Wrote `packages/chain` (SDK-based accounts, hybrid signing, PQC registration, windows) and key generation outside the repo | Secret scan of staged tree before commit |
 | 2026-11-14 | AI coding assistant | Bootstrapped + deployed to testnet, relayed owner-signed pause, wrote attack bot (0/32 successes), DRILL_RUNBOOK.md, THREAT_MODEL.md v1 | Owner to review before drill registration |
 | 2026-11-14 | AI coding assistant | **Incident:** a README edit passed backtick-quoted command names inside a shell double-quoted string, so the shell executed them, including a second testnet deployment (recorded in `deployments/qorechain-diana-accidental-2.json`, not used). Repaired files from the last good commit; edits now go through script files, never inline shell strings | Owner informed |
+| 2026-11-14 | AI coding assistant | Phase 2: spikes 3-4 (smart account, linked agent key, MsgExecuteEVM), mandate package, owner CLI, agent loop; live demo vault | Test + on-chain output reviewed |
 
 The build brief is kept in the repo as `QILL_SWITCH_BUILD_PROMPT.md`.
 
@@ -21,5 +22,5 @@ The build brief is kept in the repo as `QILL_SWITCH_BUILD_PROMPT.md`.
 | Component | Role | Can it grant power? |
 |---|---|---|
 | Mandate compiler (`packages/mandate`) | Turns plain English into mandate JSON from fixed templates; a deterministic validator checks every field | No: the owner must ML-DSA-sign the compiled output |
-| Treasury agent (`apps/agent`) | Proposes trades within the active mandate | No: limits are enforced on chain |
+| Treasury agent (`apps/agent`) | A deterministic rebalance/DCA strategy sizes each trade inside the mandate; Claude (optional) only writes the reasoning note | No: limits are enforced by the vault and the smart-account rule; the LLM never chooses amounts |
 | Guardian (`apps/guardian`) | Separate model and prompt; approves or vetoes trades above the soft limit | No: it can only veto. Its signature is needed *in addition to* the mandate |

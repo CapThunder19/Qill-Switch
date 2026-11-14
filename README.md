@@ -12,13 +12,16 @@ Built for the QoreChain "Build Before Q-Day" Developer Fest, track **Post-Quantu
 
 ✅ **Phase 1 (drill-ready)** deployed on testnet. Attack bot: 32 attempts, **0 successes**, 0 value moved ([run](docs/attack-bot-run-1.txt)). See [DRILL_RUNBOOK.md](DRILL_RUNBOOK.md) and [THREAT_MODEL.md](THREAT_MODEL.md).
 
+✅ **Phase 2 (mandates + agent)** live on a separate demo vault: plain English → validated mandate → owner ML-DSA-87 signature
+→ smart-account rules → AI agent trades through `MsgExecuteEVM` citing the mandate id; STOP makes the agent fail closed.
+
 ## Track features → code
 
 | Required feature | Where |
 |---|---|
 | Scoped EVM window | [packages/chain/src/cosmos.ts](packages/chain/src/cosmos.ts) `openWindow` (refuses unscoped windows) and [packages/chain/src/vault.ts](packages/chain/src/vault.ts) `relayToVault` (window scoped to the vault, 1 tx, exact fee budget, closed and verified) |
 | Limits on transactions, value, duration and target | [QillVault.sol](contracts/src/QillVault.sol) `trade`: per-trade cap, UTC-daily cap, mandate expiry, pool/token allowlists; windows: `maxTxs`, `maxValue`, `blocks`, `allowedTargets` |
-| Smart-account spending rules | `packages/chain` (AA rules), `packages/mandate` (compiler + validator) *(in progress)* |
+| Smart-account spending rules | [packages/chain/src/aa.ts](packages/chain/src/aa.ts) `agentRule` / `linkAgentKey` / `setRules` (one enabled rule bounding every denom, `allowed_evm_calls` = `vault/trade` only, full-replace + read-back diff; agent key linked with `evm` permission only) and [packages/mandate/src/compile.ts](packages/mandate/src/compile.ts) (compiles the rule from the mandate) |
 | Authenticated messaging | [QillMessage.sol](contracts/src/libraries/QillMessage.sol) + [packages/pq/src/message.ts](packages/pq/src/message.ts): domain-separated ML-DSA-87 messages verified on chain by `pqcVerify` (`QillVault._authOwner`, `_authGuardian`) |
 
 ## Repo layout
@@ -38,7 +41,22 @@ pnpm install
 pnpm test:contracts         # 42 Solidity tests via Hardhat 3 (unit, fuzz x1000, invariant x256)
 pnpm test:gas               # same, with gas statistics
 pnpm --filter @qill/pq test # ML-DSA-87 + canonical message tests
+pnpm --filter @qill/mandate test  # parser, validator, compiler, LLM path behind the validator
 ```
+
+## Phase 2 demo (demo vault, never the drill vault)
+
+```sh
+pnpm qill mandate compile "Trade QTA and QTB on demo-pool. Max 50 per trade, 150 per day, guardian above 20, for 5 days."
+pnpm qill mandate submit mandates/<id>.json      # side-by-side review, owner ML-DSA-87 signature, smart-account rules
+pnpm agent --once                                # one agent step (decide, trade via MsgExecuteEVM, verify, log)
+pnpm qill stop                                   # agent now refuses to act (fails closed)
+pnpm qill resume
+pnpm qill status
+```
+
+Add `--llm` to `mandate compile` to extract the draft with Claude (`claude-opus-5-5`, structured output); it needs
+`ANTHROPIC_API_KEY`. Either way the deterministic validator decides what can be signed.
 
 ## Phase 1 commands
 

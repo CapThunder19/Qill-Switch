@@ -96,6 +96,10 @@ are not touched.
 | trade 150 (> per-trade cap 100) | vault | `execution reverted` (`OverPerTradeCap`) |
 | trade 50 (> soft limit 40, no guardian) | vault | `execution reverted` (`GuardianRequired`) |
 
+- **Vault events emitted inside `MsgExecuteEVM` are not exposed**: `eth_getLogs` over the inclusion block returns
+  nothing and the Cosmos tx events are only `pqc_verify, pqc_hybrid_verify, ai_anomaly_check, coin_*, transfer, message, tx`.
+  The public RPC also refuses `eth_getLogs` ranges of a few hundred blocks. So the agent verifies trades from state
+  (vault output balance ≥ `minOut`, mandate `spentToday` += `amountIn`) instead of `TradeExecuted`.
 - A failed execution **consumes the key's auth nonce** (the 2nd run started at nonce 5), so a failed signature can never be
   relayed again. Each failure still costs the relayer the tx fee.
 
