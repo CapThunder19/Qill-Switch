@@ -12,6 +12,7 @@ This file records how AI was used to **build** Qill Switch and how AI **runs ins
 | 2026-11-14 | AI coding assistant | Switched contracts to Hardhat 3 (owner request), fixed a test-helper overflow; 42/42 Solidity tests pass | Test output reviewed |
 | 2026-11-14 | AI coding assistant | Wrote `packages/chain` (SDK-based accounts, hybrid signing, PQC registration, windows) and key generation outside the repo | Secret scan of staged tree before commit |
 | 2026-11-14 | AI coding assistant | Bootstrapped + deployed to testnet, relayed owner-signed pause, wrote attack bot (0/32 successes), DRILL_RUNBOOK.md, THREAT_MODEL.md v1 | Owner to review before drill registration |
+| 2026-11-14 | AI coding assistant | **Incident:** a README edit passed backtick-quoted command names inside a shell double-quoted string, so the shell executed them, including a second testnet deployment (recorded in `deployments/qorechain-diana-accidental-2.json`, not used). Repaired files from the last good commit; edits now go through script files, never inline shell strings | Owner informed |
 
 The build brief is kept in the repo as `QILL_SWITCH_BUILD_PROMPT.md`.
 

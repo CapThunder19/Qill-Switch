@@ -2,24 +2,27 @@
   "network": "qorechain-diana",
   "evmChainId": 9800,
   "deployer": "0x93c91b9c0ae17023FDe445c99Cb435557FA10499",
-  "deployedAt": "2026-11-14T14:34:06.908Z",
+  "deployedAt": "2026-11-14T14:22:34.441Z",
   "contracts": {
-    "QillVault": "0xDf8fb77C1606A3026EAcdFb6fa8F4F6dB59878c7",
-    "MockPool": "0x271BDF77bEc76E0bd16658e435e099C6968F324B",
-    "TokenA": "0xF2012D9957C2A9527352aA45BA9853aF0a2E0566",
-    "TokenB": "0x892B885FFAFCF29b3647bf18347cD3E1B1A4b08e"
+    "QillVault": "0x6B06108FB72c3E93eCa391E5DabeE4F141e9D365",
+    "MockPool": "0x87d69892fe9019004e38eCC5cf746Ee67b44CE4C",
+    "TokenA": "0xB1253Fe7f230Fa0e58D8a97Bb2142AE5250FB18A",
+    "TokenB": "0xB7484fa7Bc3D44B20E58941528A2dCFdA6B2DEFD"
   },
   "ownerKeyHash": "0x6ffd24954fd6fece9e7e8b8c446505480f1db24f2ee1aa256144fbe93709b9b1",
   "guardianKeyHash": "0x3975bcca633502ef08d20ee2970690469e6f28021a90e5778c092c7078ef2cdc",
   "txs": {
-    "deploy Token A": "0xeda33f37fe7eacda431f881d1cfdf9f7dfe47ee511a9e982262440678601ae17",
-    "deploy Token B": "0x5b5f50d89c75ee7e2ec2f8a343b410d0bbf334d8415da13735b61dd8425bfe13",
-    "deploy MockPool": "0x2503610d280703313362eb2896b712a726f9a7850bf8ab34c463773ca37a67c8",
-    "deploy QillVault": "0xb42b236e4319d821d646c5065b4e1ab823580337ca9f78414286e2643ddd1076",
-    "A.approve(pool)": "0x9cc54c1efc0279008b88d5ae3b37d5b3b01620f2c670b9eeb03193bfa8ef90ef",
-    "B.approve(pool)": "0x9cf7499301b2a1260b8d86b946232b361b8a746230ea6ca7dbd634b5c0442990",
-    "pool.addLiquidity": "0x11a77a9c9e1fc86f8c35522f0a53412b151004c4ab9d75f7c055305ade99e925",
-    "A.transfer(vault)": "0x8535772136af81a22201ed297db68133b645379c9832af859ecc69b5ccc64fe5",
-    "B.transfer(vault)": "0x8c21403452adaa7aaabc867d555933338a009decbd389de24ba1d255e2e2e8a1"
+    "deploy Token A": "0x5defe0641ff961b70f8b73d04ac808633c1124cdc6f6b8e99653969e0f182068",
+    "deploy Token B": "0xb14e7ccbfdd21e5ce5d0414fbec6d09b9bea6fdd73022761ae8bf8b52671b708",
+    "deploy MockPool": "0x957e4ab7dcd287f8445932db5a4e15fc111ab78e566825ffd061576ca97c1b1a",
+    "deploy QillVault": "0x3230f3aefef35e1db01d3ccbc8193c8b8f4188831f411ae3d5781eb5e97a351e",
+    "A.approve(pool)": "0xf7455ec35368e1e8cf951cdb06b9f07d132602316de7968cd54c1fc06f34abc9",
+    "B.approve(pool)": "0xd6666ba2db7b8ef81e96da81ee04d7f1c846e469e717c4955af3a8c65878fcc5",
+    "pool.addLiquidity": "0x398fff884088ee3424cb1b55352a8fdd5611213d7f761e00055246dd384a89e3",
+    "A.transfer(vault)": "0x5084734c5e34848cf698284cf897c49b368532a4468e6f435aa243214e3539d3",
+    "B.transfer(vault)": "0xfd0b5f1da9d70f5ec3b25cc1a35074178de7a384d1bf8291da3f416e6ea475c7"
+  },
+  "ownerTxs": {
+    "pause": "0x555b810a27f7cc69bab53b70ce9bd94d599cc961b2c504a511cf254e2e93ee47"
   }
 }
