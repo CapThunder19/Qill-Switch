@@ -11,7 +11,7 @@
  *   pnpm attack --only evm     # one lane: cosmos | evm | vault
  */
 import { randomBytes } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { appendFileSync, mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   createWalletClient, http, encodeFunctionData, decodeErrorResult, encodeAbiParameters, parseAbi, bytesToHex,
@@ -248,6 +248,13 @@ async function main() {
   console.log("=============================================");
   const bad = successes.length > 0 || decreased.length > 0 || controlChanged || valueMoved > 0n;
   process.exitCode = bad ? 1 : 0;
+
+  // scoreboard + every attempt, for the dashboard's attack log
+  mkdirSync(join(REPO_ROOT, "logs"), { recursive: true });
+  appendFileSync(join(REPO_ROOT, "logs", "attacks.jsonl"), JSON.stringify({
+    ts: new Date().toISOString(), target: VAULT, drill: eoa.address, attempts: results.length, successes: successes.length,
+    valueMovedUqor: valueMoved.toString(), controlChanged, results,
+  }) + "\n");
 }
 
 await main();
