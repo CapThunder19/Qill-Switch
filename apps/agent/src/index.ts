@@ -15,15 +15,19 @@
 import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import Anthropic from "@anthropic-ai/sdk";
-import { encodeFunctionData, formatUnits, keccak256, parseAbi, toHex, type Address, type Hex } from "viem";
+import { encodeFunctionData, formatUnits, keccak256, parseAbi, parseUnits, toHex, type Address, type Hex } from "viem";
 import {
-  REPO_ROOT, loadAccount, publicClient as pub, VAULT_ABI, agentExecuteEvm, loadOrCreateLinkKey, TxFailed,
+  REPO_ROOT, loadAccount, publicClient as pub, VAULT_ABI, agentExecuteEvm, loadOrCreateLinkKey, TxFailed, NO_GUARDIAN, type OwnerAuth,
 } from "@qill/chain";
 
 const args = process.argv.slice(2);
 const opt = (k: string) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : undefined; };
 const ONCE = args.includes("--once");
 const DRY = args.includes("--dry");
+const USE_GUARDIAN = !args.includes("--no-guardian");
+const GUARDIAN_URL = process.env.GUARDIAN_URL ?? "http://127.0.0.1:8787";
+/** demo knob: force the trade size (token units); the vault and guardian still enforce every limit */
+const FORCE_AMOUNT = opt("--amount");
 const INTERVAL = Number(opt("--interval") ?? 60);
 const DEPLOYMENT = opt("--deployment") ?? "demo";
 const DRIFT_BPS = BigInt(opt("--drift-bps") ?? 200); // rebalance when >2% away from 50/50 (demo knob)
@@ -96,7 +100,7 @@ async function activeMandate(): Promise<ActiveMandate | null> {
 
 // ------------------------------------------------------------------ strategy
 
-interface Decision { action: "trade" | "hold"; why: string; tokenIn?: Address; tokenOut?: Address; amountIn?: bigint; minOut?: bigint; quote?: bigint; needsGuardian?: boolean; facts: Record<string, string> }
+interface Decision { action: "trade" | "hold"; why: string; tokenIn?: Address; tokenOut?: Address; amountIn?: bigint; minOut?: bigint; quote?: bigint; needsGuardian?: boolean; softLimit?: bigint; facts: Record<string, string> }
 
 async function decide(m: ActiveMandate): Promise<Decision> {
   const pool = m.pools.find((p) => p.toLowerCase() === POOL.toLowerCase());
@@ -126,13 +130,15 @@ async function decide(m: ActiveMandate): Promise<Decision> {
   const spent = L.dayIndex === today ? L.spentToday : 0n;
   const dailyLeft = L.dailyCap > spent ? L.dailyCap - spent : 0n;
   const caps = { perTrade: L.perTradeCap, dailyLeft, soft: L.softLimit };
-  // stay at or under the soft limit so no guardian is needed (Phase 3 adds the guardian ladder)
-  let amountIn = [need, caps.perTrade, caps.dailyLeft, caps.soft].reduce((x, y) => (y < x ? y : x));
+  // approval ladder: <= soft limit trades alone; above it (up to the per-trade cap) the guardian must co-sign
+  if (FORCE_AMOUNT) need = parseUnits(FORCE_AMOUNT, 18);
+  const ceilings = FORCE_AMOUNT ? [need] : USE_GUARDIAN ? [need, caps.perTrade, caps.dailyLeft] : [need, caps.perTrade, caps.dailyLeft, caps.soft];
+  const amountIn = ceilings.reduce((x, y) => (y < x ? y : x));
   if (amountIn === 0n) return { action: "hold", why: `daily cap for ${SYM(tokenIn)} used up (${formatUnits(spent, 18)} of ${formatUnits(L.dailyCap, 18)})`, facts };
   const quote = (await pub.readContract({ address: POOL, abi: POOL_ABI, functionName: "quote", args: [tokenIn, tokenOut, amountIn] })) as bigint;
   const minOut = (quote * 99n) / 100n; // 1% slippage
   return {
-    action: "trade", tokenIn, tokenOut, amountIn, minOut, quote, needsGuardian: amountIn > L.softLimit,
+    action: "trade", tokenIn, tokenOut, amountIn, minOut, quote, needsGuardian: amountIn > L.softLimit, softLimit: L.softLimit,
     why: dca ? `dca (${m.schedule ?? "each step"}): buy QTB with ${formatUnits(amountIn, 18)} QTA (capped by per-trade ${formatUnits(caps.perTrade, 18)}, daily left ${formatUnits(caps.dailyLeft, 18)}, soft limit ${formatUnits(caps.soft, 18)})` : `rebalance: ${SYM(tokenIn)} is overweight (drift ${Number(driftBps) / 100}%); sell ${formatUnits(amountIn, 18)} ${SYM(tokenIn)} (needed ${formatUnits(need, 18)}, capped by per-trade ${formatUnits(caps.perTrade, 18)}, daily left ${formatUnits(caps.dailyLeft, 18)}, soft limit ${formatUnits(caps.soft, 18)})`,
     facts,
   };
@@ -171,8 +177,27 @@ async function step() {
   const reasoning = await narrate(d, m.id);
   if (d.action === "hold") { log({ event: "hold", mandateId: m.id, why: d.why, facts: d.facts, reasoning }); return "hold" as const; }
 
-  const entry = { mandateId: m.id, pool: POOL, tokenIn: SYM(d.tokenIn!), tokenOut: SYM(d.tokenOut!), amountIn: d.amountIn, minOut: d.minOut, quote: d.quote, guardianUsed: false, why: d.why, facts: d.facts, reasoning };
-  if (DRY) { log({ event: "decision (dry run)", ...entry }); return "dry" as const; }
+  if (DRY) { log({ event: "decision (dry run)", mandateId: m.id, ...d, reasoning }); return "dry" as const; }
+
+  // guardian ladder
+  let guardian: OwnerAuth = NO_GUARDIAN;
+  let guardianDecision: unknown;
+  if (d.needsGuardian) {
+    const g = await askGuardian({ mandateId: m.id, pool: POOL, tokenIn: d.tokenIn!, tokenOut: d.tokenOut!, amountIn: d.amountIn!, minOut: d.minOut! }, d.why + (reasoning ? " " + reasoning : ""));
+    guardianDecision = { approved: g.approved, reasons: g.reasons, review: g.review };
+    if (g.approved && g.guardianAuth) {
+      guardian = { pubkey: g.guardianAuth.pubkey, signature: g.guardianAuth.signature, nonce: BigInt(g.guardianAuth.nonce), expiry: BigInt(g.guardianAuth.expiry) };
+    } else {
+      log({ event: "guardian veto", mandateId: m.id, tokenIn: SYM(d.tokenIn!), amountIn: d.amountIn, reasons: g.reasons, review: g.review });
+      // fall back to the largest trade that needs no guardian
+      const fallback = d.softLimit! < d.amountIn! ? d.softLimit! : 0n;
+      if (fallback === 0n) { log({ event: "hold", mandateId: m.id, why: "guardian vetoed and no smaller trade is allowed" }); return "hold" as const; }
+      const q = (await pub.readContract({ address: POOL, abi: POOL_ABI, functionName: "quote", args: [d.tokenIn!, d.tokenOut!, fallback] })) as bigint;
+      d.amountIn = fallback; d.quote = q; d.minOut = (q * 99n) / 100n; d.needsGuardian = false;
+      d.why += `; guardian vetoed, downsized to the soft limit ${formatUnits(fallback, 18)}`;
+    }
+  }
+  const entry = { mandateId: m.id, pool: POOL, tokenIn: SYM(d.tokenIn!), tokenOut: SYM(d.tokenOut!), amountIn: d.amountIn, minOut: d.minOut, quote: d.quote, guardianUsed: guardian !== NO_GUARDIAN, guardianDecision, why: d.why, facts: d.facts, reasoning };
 
   // re-check right before submitting
   const again = await safetyCheck();
@@ -180,7 +205,7 @@ async function step() {
 
   const data = encodeFunctionData({ abi: VAULT_ABI, functionName: "trade", args: [
     { mandateId: m.id, pool: POOL, tokenIn: d.tokenIn!, tokenOut: d.tokenOut!, amountIn: d.amountIn!, minOut: d.minOut! },
-    { pubkey: "0x", signature: "0x", nonce: 0n, expiry: 0n },
+    guardian,
   ] });
   // EVM logs emitted inside MsgExecuteEVM are not exposed via eth_getLogs (docs/SPIKES.md), so the trade is
   // verified from state: the vault's output balance and the mandate's spentToday counter must both move.
@@ -198,6 +223,19 @@ async function step() {
   } catch (e: any) {
     log({ event: "trade failed", ...entry, error: e instanceof TxFailed ? e.message : String(e.message ?? e) });
     return "failed" as const;
+  }
+}
+
+async function askGuardian(trade: { mandateId: Hex; pool: Address; tokenIn: Address; tokenOut: Address; amountIn: bigint; minOut: bigint }, reasoning: string):
+  Promise<{ approved: boolean; reasons: string[]; review?: unknown; guardianAuth?: { pubkey: Hex; signature: Hex; nonce: string; expiry: string } }> {
+  try {
+    const r = await fetch(`${GUARDIAN_URL}/review`, {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ deployment: DEPLOYMENT, trade, reasoning }, (_k, x) => (typeof x === "bigint" ? x.toString() : x)),
+    });
+    return await r.json();
+  } catch (e: any) {
+    return { approved: false, reasons: [`guardian unreachable (${e.message}); treated as a veto`] };
   }
 }
 

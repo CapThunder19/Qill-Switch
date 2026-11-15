@@ -34,6 +34,35 @@ export function ownerKey(): MlDsaKeypair {
 
 export type OwnerAuth = { pubkey: Hex; signature: Hex; nonce: bigint; expiry: bigint };
 
+export interface TradeParams { mandateId: Hex; pool: Address; tokenIn: Address; tokenOut: Address; amountIn: bigint; minOut: bigint }
+export const TRADE_PARAMS_TYPE = {
+  type: "tuple",
+  components: [
+    { name: "mandateId", type: "bytes32" }, { name: "pool", type: "address" }, { name: "tokenIn", type: "address" },
+    { name: "tokenOut", type: "address" }, { name: "amountIn", type: "uint256" }, { name: "minOut", type: "uint256" },
+  ],
+} as const;
+export const NO_GUARDIAN: OwnerAuth = { pubkey: "0x", signature: "0x", nonce: 0n, expiry: 0n };
+
+export function guardianKey(): MlDsaKeypair {
+  return readKeyFile(join(keyDir(), "guardian.mldsa.json"), { repoRoot: REPO_ROOT });
+}
+
+/**
+ * Guardian ML-DSA-87 approval of exactly `t` at the vault's current guardianNonce. Cross-checked against the
+ * vault's own `guardianMessage` encoder, so a signature can only ever approve these exact params, once.
+ */
+export async function signGuardianApproval(vault: Address, t: TradeParams, ttlSec = 120): Promise<OwnerAuth> {
+  const kp = guardianKey();
+  const nonce = (await publicClient.readContract({ address: vault, abi: VAULT_ABI, functionName: "guardianNonce" })) as bigint;
+  const expiry = BigInt(Math.floor(Date.now() / 1000) + ttlSec);
+  const params = encodeAbiParameters([TRADE_PARAMS_TYPE], [t]);
+  const message = encodeMessage({ chainId: BigInt(NET.evmChainId), verifyingContract: vault, action: "GUARDIAN_APPROVE_TRADE", params, nonce, expiry });
+  const onchain = await publicClient.readContract({ address: vault, abi: VAULT_ABI, functionName: "guardianMessage", args: [t, expiry] });
+  if (onchain !== message) throw new Error("local guardian message differs from vault.guardianMessage");
+  return { pubkey: bytesToHex(kp.publicKey), signature: bytesToHex(sign(message, kp.secretKey)), nonce, expiry };
+}
+
 /** Owner commands: Solidity function name, action id, params ABI. */
 export const MANDATE_PARAMS_TYPE = {
   type: "tuple",
