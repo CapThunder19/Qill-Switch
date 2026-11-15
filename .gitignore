@@ -39,3 +39,4 @@ contracts/ignition/deployments/chain-31337/
 # runtime logs
 logs/
 apps/dashboard/dist/
+apps/challenge/dist/

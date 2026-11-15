@@ -24,7 +24,10 @@
     "guardian": "pnpm --silent --filter @qill/guardian guardian",
     "dashboard:api": "pnpm --silent --filter @qill/dashboard api",
     "dashboard:dev": "pnpm --filter @qill/dashboard dev",
-    "dashboard:build": "pnpm --filter @qill/dashboard build"
+    "dashboard:build": "pnpm --filter @qill/dashboard build",
+    "challenge:refill": "pnpm --silent --filter @qill/chain exec tsx scripts/challenge-refill.ts",
+    "challenge:dev": "pnpm --filter @qill/challenge dev",
+    "challenge:build": "pnpm --filter @qill/challenge build"
   },
   "devDependencies": {
     "typescript": "^5.6.3",
