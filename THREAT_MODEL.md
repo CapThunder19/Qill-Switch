@@ -1,4 +1,4 @@
-# Threat model (v1, Phase 1)
+# Threat model (v2, Phases 1–3)
 
 ## Assets
 
@@ -49,13 +49,33 @@
   exact tx count and closed immediately.
 - Keys live outside the repo (`QILL_KEY_DIR`); scripts refuse paths inside it; Gitleaks in CI.
 
+### D. Agent, guardian, Q-Day, dashboard (Phases 2–3)
+- **Agent smart account:** the agent's secp256k1 key is linked with only the `evm` permission; the account's single
+  enabled rule bounds every denom and allows only `0x<vault>/0x<trade selector>`. Tested: `approve` and `pause` calls are
+  refused by the chain; over-cap trades are refused by the vault (code-0 tx + `abstractaccount_execution_failed`, caught).
+- **Agent** fails closed (any read error, `paused`, `qDayFrozen`, or not being the executor → no action), acts only on a
+  mandate file whose `textHash`/`rulesHash` match the chain, and sizes trades deterministically; the LLM only narrates.
+- **Guardian** is a separate process. It gathers facts from chain itself, applies a deterministic policy (caps, mandate,
+  slippage ≤ 2%, price impact ≤ 3%, ≤ 3 approvals/hour, ≥ 30 s apart), lets an optional LLM review only add a veto, and
+  simulates the exact trade with the exact approval before releasing it. Its ML-DSA-87 signature binds the exact trade
+  params, a guardian nonce and a 2-minute expiry, and is needed *in addition to* the mandate.
+- **Q-Day button** (`qill qday --fleet`, dashboard): freezes every vault, revokes every linked key, closes every window,
+  then re-queries and retries. Tested for real on a disposable fleet; afterwards the revoked key is refused by the chain
+  (`abstractaccount/10: linked key is unbound or revoked`).
+- **Dashboard** reads state in the browser; owner actions are signed by a localhost-only API in its own process (the
+  bundle contains no key or crypto code, checked at build) and require a per-session token, so another page cannot
+  trigger them.
+
 ## Known residual risks / open items
 
 | Risk | Status |
 |---|---|
 | Owner ML-DSA key on the same machine as the dev environment | Accepted for testnet; move to an offline signer before mainnet |
 | Mock pool pricing is manipulable (no oracle) | Caps and `minOut` bound the loss per trade/day; real DEX not used |
-| Smart-account spending rules (x/abstractaccount) not yet configured | Phase 2: agent will act only through a linked key limited to `vault.trade` |
-| Guardian is a signer, not yet an AI service | Phase 3 |
+| Relayer (fee payer) key is on the agent host | It can only pay fees and relay; it cannot sign for the smart account or the owner. Move to a separate host for mainnet |
+| Guardian and owner keys on the same machine in the demo | Accepted for testnet; the guardian should run on a separate host with its own key |
+| LLM review not exercised (no API key configured) | Deterministic policy alone decides; review can only add vetoes when enabled |
+| Vault events inside `MsgExecuteEVM` are not queryable | Agent and dashboard verify from state (balances, `spentToday`) and logs |
+| A compromised agent can still trade within the mandate (bounded loss per trade/day) | By design; caps + guardian above the soft limit + STOP / Q-Day |
 | `pqcVerify` cost (~85–90k gas + ~7.5 KB calldata per signature) | Measured: owner `pause` = 283k gas total |
 | Funds sent directly to the drill account by third parties | Cannot be moved without the ML-DSA key |

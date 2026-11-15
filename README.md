@@ -15,6 +15,10 @@ Built for the QoreChain "Build Before Q-Day" Developer Fest, track **Post-Quantu
 ✅ **Phase 2 (mandates + agent)** live on a separate demo vault: plain English → validated mandate → owner ML-DSA-87 signature
 → smart-account rules → AI agent trades through `MsgExecuteEVM` citing the mandate id; STOP makes the agent fail closed.
 
+✅ **Phase 3 (guardian, Q-Day, dashboard)**: trades above the soft limit are co-signed by a separate guardian service
+(ML-DSA-87) or vetoed; the Q-Day button froze a test fleet, revoked its agent key and closed its windows in one round
+([run](docs/qday-test-run-1.txt)); the dashboard signs STOP / RESUME / Q-Day in a localhost API, never in the browser.
+
 ## Track features → code
 
 | Required feature | Where |
@@ -53,6 +57,17 @@ pnpm agent --once                                # one agent step (decide, trade
 pnpm qill stop                                   # agent now refuses to act (fails closed)
 pnpm qill resume
 pnpm qill status
+```
+
+## Phase 3 demo
+
+```sh
+pnpm guardian                                    # terminal 1: guardian service on 127.0.0.1:8787
+pnpm agent --once --drift-bps 0 --amount 30      # above the soft limit → guardian co-signs → trade
+pnpm agent --once --drift-bps 0 --amount 60      # above the per-trade cap → guardian vetoes → agent downsizes to 20
+pnpm dashboard:build && pnpm dashboard:api       # terminal 2: open http://127.0.0.1:8788, paste the printed token
+pnpm qill fleet status --fleet production        # what Q-Day would freeze / revoke / close
+pnpm qill qday --fleet qday-test                 # the Q-Day button (fleet must be named explicitly)
 ```
 
 Add `--llm` to `mandate compile` to extract the draft with Claude (`claude-opus-5-5`, structured output); it needs
