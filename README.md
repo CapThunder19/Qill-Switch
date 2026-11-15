@@ -19,6 +19,10 @@ Built for the QoreChain "Build Before Q-Day" Developer Fest, track **Post-Quantu
 (ML-DSA-87) or vetoed; the Q-Day button froze a test fleet, revoked its agent key and closed its windows in one round
 ([run](docs/qday-test-run-1.txt)); the dashboard signs STOP / RESUME / Q-Day in a localhost API, never in the browser.
 
+✅ **Phase 4 (Steal This Agent)**: a separate challenge deployment publishes both the challenge account's classical key
+and the AI agent's key. Our attack bot: 39 attempts, **0 successes** ([run](docs/challenge-attack-run-1.txt)).
+Page source in [apps/challenge](apps/challenge); launch with the manual `challenge-pages` workflow.
+
 ## Track features → code
 
 | Required feature | Where |
@@ -69,6 +73,24 @@ pnpm dashboard:build && pnpm dashboard:api       # terminal 2: open http://127.0
 pnpm qill fleet status --fleet production        # what Q-Day would freeze / revoke / close
 pnpm qill qday --fleet qday-test                 # the Q-Day button (fleet must be named explicitly)
 ```
+
+## Steal This Agent
+
+```sh
+pnpm --filter @qill/chain exec tsx scripts/setup-challenge.ts   # idempotent: accounts, deployment, agent key, mandate, sweep, challenge.json
+pnpm attack --target challenge                                  # every attack, incl. the published agent key via MsgExecuteEVM
+pnpm challenge:refill                                           # integrity check vs baseline + top the bait back up to 3 QOR
+pnpm challenge:dev                                              # the public page locally (http://127.0.0.1:5174)
+```
+
+Launch: repo **Settings → Pages → Source: GitHub Actions**, then run the **challenge-pages** workflow from the Actions tab.
+
+| Challenge item | Address |
+|---|---|
+| Challenge account (key published, holds the bait) | `0x2A2F8F87C3C422E3369fA45dCE8de9269f685b66` |
+| Agent smart account (vault executor, 0 QOR) | `0xA073EcFEF809651162AEDf3bdeB776E4cAcaA922` |
+| Agent key (published, `evm` only) | `0x828fA45077fa6cA0616D650E9914bB2Eb03D95C3` |
+| Challenge contracts | [deployments/challenge.json](deployments/challenge.json) |
 
 Add `--llm` to `mandate compile` to extract the draft with Claude (`claude-opus-5-5`, structured output); it needs
 `ANTHROPIC_API_KEY`. Either way the deterministic validator decides what can be signed.

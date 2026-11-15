@@ -1,4 +1,4 @@
-# Threat model (v2, Phases 1–3)
+# Threat model (v3, Phases 1–4)
 
 ## Assets
 
@@ -65,6 +65,18 @@
 - **Dashboard** reads state in the browser; owner actions are signed by a localhost-only API in its own process (the
   bundle contains no key or crypto code, checked at build) and require a per-session token, so another page cannot
   trigger them.
+
+### E. Steal This Agent (Phase 4)
+- Two keys are **published on purpose**: the challenge account's classical ECDSA key and the agent's linked key. Both
+  were generated only for the challenge; the challenge account's ML-DSA secret and the owner/guardian keys stay private.
+- **Finding fixed during Phase 4:** a rule-bound linked key may still send plain *value* with no `allowed_evm_calls`
+  entry, bounded only by the rule's `perTxLimit` / `dailyLimit`. The agent rule is now 1 uqor per execution and per day
+  (0 would mean unlimited) on every smart account, and the challenge smart account is swept to 0 QOR. Verified on chain:
+  0.1 QOR → "per-tx limit 1uqor exceeded"; 1 uqor → "insufficient balance".
+- The challenge mandate has soft limit 0, so every trade needs our guardian's ML-DSA-87 co-signature; the agent key alone
+  cannot even trade within the caps.
+- `pnpm challenge:refill` checks integrity against the published baseline (account nonce = transactions the published key
+  landed, vault + pool balances, vault control, smart account balance, windows) before topping the bait up.
 
 ## Known residual risks / open items
 

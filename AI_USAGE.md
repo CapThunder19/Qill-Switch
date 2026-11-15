@@ -15,6 +15,7 @@ This file records how AI was used to **build** Qill Switch and how AI **runs ins
 | 2026-11-14 | AI coding assistant | **Incident:** a README edit passed backtick-quoted command names inside a shell double-quoted string, so the shell executed them, including a second testnet deployment (recorded in `deployments/qorechain-diana-accidental-2.json`, not used). Repaired files from the last good commit; edits now go through script files, never inline shell strings | Owner informed |
 | 2026-11-14 | AI coding assistant | Phase 2: spikes 3-4 (smart account, linked agent key, MsgExecuteEVM), mandate package, owner CLI, agent loop; live demo vault | Test + on-chain output reviewed |
 | 2026-11-16 | AI coding assistant | Phase 3: guardian service + policy tests, approval ladder, fleet Q-Day button (tested on a disposable fleet), dashboard + localhost signer API, threat model v2 | On-chain runs reviewed |
+| 2026-11-16 | AI coding assistant | Phase 4: challenge deployment and setup script, published-key attack runs (39/0), found + fixed the linked-key value path (1 uqor rule, swept smart account), public challenge page, Pages workflow, refill/monitor | On-chain runs reviewed |
 
 The build brief is kept in the repo as `QILL_SWITCH_BUILD_PROMPT.md`.
 
