@@ -6,7 +6,9 @@
  *   qill mandate compile "<plain English>" [--llm]       → prints text and compiled rules side by side, writes mandates/<id>.json
  *   qill mandate submit mandates/<id>.json [--yes]        → owner-signs createMandate, relays it, sets smart-account rules
  *   qill mandate revoke <id>
- *   qill stop | resume | qday
+ *   qill stop | resume
+ *   qill qday --fleet <name>        Q-Day button: freeze every vault, revoke every linked key, close every window, verify
+ *   qill fleet status --fleet <name>
  *   qill rules show | qill rules set mandates/<id>.json
  *   qill window status | qill window close | qill panic
  *
@@ -19,6 +21,7 @@ import { formatUnits, type Address, type Hex } from "viem";
 import {
   REPO_ROOT, accountExists, loadAccount, accountAddresses, evmWindow, closeWindow, getBalance,
   publicClient as pub, VAULT_ABI, relayToVault, signOwnerCommand, readRules, readAuthenticators, setRules,
+  loadFleet, snapshot, qDay,
   type MandateParams,
 } from "@qill/chain";
 import {
@@ -43,6 +46,7 @@ function bool(name: string): boolean {
 const DEPLOYMENT = flag("--deployment") ?? "demo";
 const RELAYER = flag("--relayer") ?? "relayer";
 const USE_LLM = bool("--llm");
+const FLEET = flag("--fleet");
 const YES = bool("--yes");
 
 function deployment() {
@@ -181,8 +185,21 @@ async function main() {
     case "stop": return void (await ownerCmd("pause"));
     case "resume": return void (await ownerCmd("resume"));
     case "qday": {
-      await confirm(`Q-DAY freezes vault ${vaultAddr()} FOREVER (owner can still withdraw). Continue?`);
-      return void (await ownerCmd("qDay"));
+      if (!FLEET) throw new Error("usage: qill qday --fleet <name>   (fleet/<name>.json; no default on purpose)");
+      const fleet = loadFleet(FLEET);
+      console.log(`Q-DAY on fleet "${FLEET}":`);
+      for (const s of await snapshot(fleet)) console.log(`  ${s.kind.padEnd(6)} ${s.id.padEnd(70)} ${s.done ? "already done" : "will be " + { vault: "frozen", key: "revoked", window: "closed" }[s.kind]}`);
+      await confirm("Freeze every vault FOREVER, revoke every linked key and close every window?");
+      const r = await qDay(fleet);
+      console.log(`\nfinal state (round ${r.round}):`);
+      for (const s of r.states) console.log(`  ${s.done ? "✔" : "✘"} ${s.kind.padEnd(6)} ${s.id.padEnd(70)} ${s.detail}`);
+      if (!r.ok) { process.exitCode = 1; console.log("Q-DAY INCOMPLETE: re-run qill qday to retry"); }
+      return;
+    }
+    case "fleet status": {
+      if (!FLEET) throw new Error("usage: qill fleet status --fleet <name>");
+      for (const s of await snapshot(loadFleet(FLEET))) console.log(`  ${s.done ? "✔" : "·"} ${s.kind.padEnd(6)} ${s.id.padEnd(70)} ${s.detail}`);
+      return;
     }
     case "rules show": {
       const sa = smartAccountName();

@@ -1,0 +1,6 @@
+{
+  "vaults": ["qday-test"],
+  "smartAccounts": ["qdayacct"],
+  "windowAccounts": ["relayer", "qdayacct"],
+  "relayer": "relayer"
+}

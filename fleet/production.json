@@ -1,0 +1,6 @@
+{
+  "vaults": ["qorechain-diana", "demo", "qorechain-diana-accidental-2"],
+  "smartAccounts": ["agentacct"],
+  "windowAccounts": ["drill", "funder", "relayer", "agentacct"],
+  "relayer": "relayer"
+}

@@ -1,0 +1,27 @@
+{
+  "name": "qday-test",
+  "executor": "0xBA3214D1084eC8a8E3d67Fbd00A4862DF0a47287",
+  "network": "qorechain-diana",
+  "evmChainId": 9800,
+  "deployer": "0x77A6A633Ce3e62A48bE370984a4812459Aedc09D",
+  "deployedAt": "2026-11-15T18:41:41.412Z",
+  "contracts": {
+    "QillVault": "0xF4e78f837E2c6Eb4A1076A3101edbF5ff458890f",
+    "MockPool": "0xA8E1b67E9288eAe7755C030807c295Dd8e001C49",
+    "TokenA": "0x5C359ACC2679e96335F846De5779738BAC967512",
+    "TokenB": "0x04EB3eEB47fC9d603a61B5609a59Eb08670A850F"
+  },
+  "ownerKeyHash": "0x6ffd24954fd6fece9e7e8b8c446505480f1db24f2ee1aa256144fbe93709b9b1",
+  "guardianKeyHash": "0x3975bcca633502ef08d20ee2970690469e6f28021a90e5778c092c7078ef2cdc",
+  "txs": {
+    "deploy Token A": "0x8c4812f357cb395e398346831860b76e7b735fcf629698aff593be641f73b493",
+    "deploy Token B": "0xc941db4499eadfd5702103a0ca1e67510621f15d4b4386155c3d176227503d3d",
+    "deploy MockPool": "0x712c211dc461f12b7e6fa038ca5ba85c9748c2289a8a325b8829ae1d282bcf38",
+    "deploy QillVault": "0xeaff991b59cdd7d420320306c3a83ecbc37dc2855fa8dbf1e885a2760d3bff20",
+    "A.approve(pool)": "0xc654c2ed946d81e77ea1f7412a0578ad6652cfa4da9e337e698ec1201c928102",
+    "B.approve(pool)": "0x625bb8028a4f9579360c3371ade262e5e559b000bdee8a7576c87ef9005fabcd",
+    "pool.addLiquidity": "0x21d7fdd27ea0d611b31e85b687d0871d6cdef97dba7994e5bba86c42cd336af2",
+    "A.transfer(vault)": "0x481d1512d71a48b5bd23e6b13b710f539266f845f99b74c3d694496c8ae218e8",
+    "B.transfer(vault)": "0xe8060cb297b290710bd02432fe2d250fd855ecca8fd8c61d58bd358a204a9c84"
+  }
+}

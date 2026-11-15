@@ -1,0 +1,18 @@
+Q-DAY on fleet "qday-test":
+  vault  qday-test 0xF4e78f837E2c6Eb4A1076A3101edbF5ff458890f                   will be frozen
+  key    qdayacct secp256k1:0xa08d9cecfd68f953407b89bd36169ef406d001c4          will be revoked
+  window relayer                                                                already done
+  window qdayacct                                                               already done
+— round 1
+  vault qday-test: qDay() tx 0x76c489d92da10454f1d7a5359f98fc20a9bc691fc12bf9deb4b3319204484663
+  key qdayacct 0xa08d9cecfd68f953407b89bd36169ef406d001c4: revoked tx 5303A0E5126BBB455002E5F309012FEAA0C0BE92D82F330C7A7BED757247B569
+  window relayer: closed tx 28434B424531B41F71AD99E19B437BBED4395CFAA860730F5837F6F73D8FD3BE
+
+final state (round 1):
+  ✔ vault  qday-test 0xF4e78f837E2c6Eb4A1076A3101edbF5ff458890f                   qDayFrozen=true paused=true executor=0x0000000000000000000000000000000000000000
+  ✔ key    qdayacct secp256k1:0xa08d9cecfd68f953407b89bd36169ef406d001c4          revoked=true perms=evm
+  ✔ window relayer                                                                found=false live=false
+  ✔ window qdayacct                                                               found=false live=false
+
+After the run, the revoked qday-agent key tried a MsgExecuteEVM and the chain refused it:
+abstractaccount/10: linked key is unbound or revoked

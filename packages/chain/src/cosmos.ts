@@ -219,3 +219,25 @@ export async function closeWindow(acct: UnifiedAccount) {
   if (after.found && after.live) throw new Error(`window for ${acct.cosmos} still live after close`);
   return { txHash, closed: true };
 }
+
+// ------------------------------------------------------------------ account bootstrap
+
+/**
+ * Create (if needed), register the ML-DSA-87 key while holding only the registration fee, then top up to `targetUqor`.
+ * Idempotent.
+ */
+export async function ensureAccount(name: string, targetUqor: bigint, funderName = "funder") {
+  const { accountExists, generateAccount, loadAccount } = await import("./accounts.js");
+  const BOOT = 150_000n;
+  if (!accountExists(name)) generateAccount(name);
+  const a = loadAccount(name);
+  const funder = loadAccount(funderName);
+  if (!(await pqcStatus(a.cosmos)).registered) {
+    const bal = await getBalance(a.cosmos);
+    if (bal < BOOT) await bankSend(funder, a.cosmos, BOOT - bal);
+    await registerPqcKey(a);
+  }
+  const bal = await getBalance(a.cosmos);
+  if (bal < targetUqor) await bankSend(funder, a.cosmos, targetUqor - bal);
+  return a;
+}
