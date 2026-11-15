@@ -1,0 +1,49 @@
+attack bot [challenge] | target qorechain-diana | drill 0x2A2F8F87C3C422E3369fA45dCE8de9269f685b66 (qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9) | vault 0xaaDc82Ed0a27aA89F38F02e848B649018AD17e90
+drill EVM window: found=false live=false
+
+ok [cosmos] native transfer (classical sig)                blocked  pqc/20: account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has a registered PQC key and must include the hybri
+ok [cosmos] native transfer (forged hybrid, attacker ML-DSA) blocked  pqc/21: PQC signature verification failed for qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9: hybrid PQC signature
+ok [cosmos] open EVM window, unscoped (classical)          blocked  pqc/20: account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has a registered PQC key and must include the hybri
+ok [cosmos] open EVM window, unscoped (forged hybrid)      blocked  pqc/21: PQC signature verification failed for qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9: hybrid PQC signature
+ok [cosmos] open EVM window scoped to tokens (classical)   blocked  pqc/20: account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has a registered PQC key and must include the hybri
+ok [cosmos] register attacker PQC key (classical)          blocked  pqc/234: account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has a registered PQC key; register and migrate nee
+ok [cosmos] EIP-7702 delegation consent (classical)        blocked  pqc/20: account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has a registered PQC key and must include the hybri
+ok [cosmos] EIP-7702 delegation consent (forged hybrid)    blocked  pqc/21: PQC signature verification failed for qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9: hybrid PQC signature
+ok [cosmos] close EVM window (classical, griefing)         blocked  pqc/20: account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has a registered PQC key and must include the hybri
+ok [evm] native QOR transfer                            blocked  account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has no open EVM authorisation window
+ok [evm] Token A approve(attacker, max)                 blocked  account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has no open EVM authorisation window
+ok [evm] Token A transferFrom(vault)                    blocked  account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has no open EVM authorisation window
+ok [evm] deploy contract                                blocked  account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has no open EVM authorisation window
+ok [evm] EIP-7702 type-4 delegation tx                  blocked  account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has no open EVM authorisation window
+ok [vault] withdraw native, junk signature                blocked  reverts BadSignature | send refused: account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has no op
+ok [vault] withdraw Token A, junk signature               blocked  reverts BadSignature | send refused: account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has no op
+ok [vault] withdraw, attacker ML-DSA key + VALID sig      blocked  reverts WrongKey | send refused: account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has no op
+ok [vault] setExecutor(attacker), junk signature          blocked  reverts BadSignature | send refused: account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has no op
+ok [vault] resume, junk signature                         blocked  reverts BadSignature | send refused: account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has no op
+ok [vault] rotateOwnerKey(attacker), junk signature       blocked  reverts BadSignature | send refused: account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has no op
+ok [vault] setGuardianKey(attacker), junk signature       blocked  reverts BadSignature | send refused: account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has no op
+ok [vault] setAllowlist(attacker pool), junk signature    blocked  reverts BadSignature | send refused: account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has no op
+ok [vault] qDay (griefing), junk signature                blocked  reverts BadSignature | send refused: account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has no op
+ok [vault] pause (griefing), junk signature               blocked  reverts BadSignature | send refused: account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has no op
+ok [vault] createMandate(attacker), junk signature        blocked  reverts BadSignature | send refused: account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has no op
+ok [vault] REPLAY real owner pause signature on resume    blocked  reverts BadNonce | send refused: account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has no op
+ok [vault] REPLAY real owner pause signature on pause     blocked  reverts BadNonce | send refused: account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has no op
+ok [vault] real sig, expiry stretched                     blocked  reverts BadNonce | send refused: account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has no op
+ok [vault] trade (not executor)                           blocked  reverts NotExecutor | send refused: account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has no op
+ok [vault] trade over cap                                 blocked  reverts NotExecutor | send refused: account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has no op
+ok [vault] trade via attacker 'pool'                      blocked  reverts NotExecutor | send refused: account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has no op
+ok [vault] send native to vault + junk                    blocked  account qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9 has no open EVM authorisation window
+ok [agent] agent key: send 0.1 QOR to attacker            blocked  abstractaccount_execution_failed (per-tx limit 1uqor exceeded (attempted 100000): spending limit exceeded) in 
+ok [agent] agent key: send 1 uqor (within rule)           blocked  abstractaccount_execution_failed (insufficient balance for transfer: evm transaction execution failed) in 83FC
+ok [agent] agent key: Token A approve(attacker)           blocked  abstractaccount_execution_failed (a linked key with a spending rule may call 0x8bf1dc453B8968D641DB349dd183da2
+ok [agent] agent key: vault.withdraw (junk sig)           blocked  abstractaccount_execution_failed (a linked key with a spending rule may call 0xaaDc82Ed0a27aA89F38F02e848B6490
+ok [agent] agent key: trade, no guardian (soft limit 0)   blocked  abstractaccount_execution_failed (execution reverted: evm transaction execution failed) in BD540423BC7FBB56200
+ok [agent] agent key: trade, junk guardian sig            blocked  abstractaccount_execution_failed (execution reverted: evm transaction execution failed) in 82D0D3E75C561C32039
+ok [agent] agent key: trade into attacker 'pool'          blocked  abstractaccount_execution_failed (execution reverted: evm transaction execution failed) in A74C396366A4862B2E4
+
+================ SCOREBOARD ================
+attempts:          39
+successes:         0
+value moved:       drill 0 QOR; vault/pool decreased: none
+vault control:     unchanged (nonce 1, paused false, executor 0xA073EcFEF809651162AEDf3bdeB776E4cAcaA922)
+=============================================

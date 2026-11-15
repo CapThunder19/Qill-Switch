@@ -177,7 +177,7 @@ export async function revokeAgentKey(smart: UnifiedAccount, agentAddress: Addres
 /** Agent signs a MsgExecuteEVM for `to/data`; relayer broadcasts it (hybrid). Fails loudly on execution failure. */
 export async function agentExecuteEvm(opts: {
   relayer: UnifiedAccount; smartAccount: string; agent: { privateKey: Hex; address: Address };
-  to: Address; data: Hex; gasLimit: bigint;
+  to: Address; data: Hex; gasLimit: bigint; value?: bigint;
 }) {
   const { nonce } = await fetchAuthNonce({ rest: NET.rest, address: opts.smartAccount, pubkey: opts.agent.address });
   const digestVersion = await resolveEvmAuthDigestVersion({ rest: NET.rest });
@@ -188,7 +188,7 @@ export async function agentExecuteEvm(opts: {
     chainId: NET.chainId,
     account: opts.smartAccount,
     to: opts.to,
-    value: "0",
+    value: (opts.value ?? 0n).toString(),
     data: hexToBytes(opts.data),
     gasLimit: opts.gasLimit,
     nonce,

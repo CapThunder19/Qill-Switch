@@ -7,8 +7,11 @@
  * An attack counts as a SUCCESS if a transaction it sent is included with success status, or if
  * any watched value decreased. Exits 1 if anything succeeded.
  *
- *   pnpm attack                # all attacks
- *   pnpm attack --only evm     # one lane: cosmos | evm | vault
+ *   pnpm attack                       # all attacks against the drill deployment
+ *   pnpm attack --only evm            # one lane: cosmos | evm | vault | agent
+ *   pnpm attack --target challenge    # the public "Steal This Agent" deployment: also attacks with the
+ *                                     # PUBLISHED agent key (relayed by an account of ours, as an attacker
+ *                                     # would relay with their own PQC-registered account)
  */
 import { randomBytes } from "node:crypto";
 import { appendFileSync, mkdirSync, readFileSync } from "node:fs";
@@ -23,18 +26,29 @@ import {
   generatePqcKeypair, closeEvmWindowMsg, type EncodeObject, type UnifiedAccount,
 } from "@qorechain/sdk";
 import { keygen, sign, encodeMessage } from "@qill/pq";
-import { keyDir, REPO_ROOT, sendMsgs, getBalance, NET, qore, publicClient as pub, VAULT_ABI, deployment, evmWindow } from "@qill/chain";
+import {
+  keyDir, REPO_ROOT, sendMsgs, getBalance, NET, qore, publicClient as pub, VAULT_ABI, evmWindow,
+  agentExecuteEvm, loadAccount, accountExists, NO_GUARDIAN,
+} from "@qill/chain";
+
+const TARGETS = {
+  drill: { key: "drill", deployment: NET.chainId as string, agentKey: undefined, smartAccount: undefined },
+  challenge: { key: "challenge", deployment: "challenge", agentKey: "challenge-agent", smartAccount: "challengeagent" },
+} as const;
+const TARGET_NAME = (process.argv.includes("--target") ? process.argv[process.argv.indexOf("--target") + 1] : "drill") as keyof typeof TARGETS;
+const TARGET = TARGETS[TARGET_NAME];
+if (!TARGET) throw new Error(`unknown --target ${TARGET_NAME}`);
 
 // ------------------------------------------------------------------ setup: ECDSA key only
 
-const ecdsa = JSON.parse(readFileSync(join(keyDir(), "drill.ecdsa.json"), "utf8")) as { privateKey: Hex; evm: Address; cosmos: string };
+const ecdsa = JSON.parse(readFileSync(join(keyDir(), `${TARGET.key}.ecdsa.json`), "utf8")) as { privateKey: Hex; evm: Address; cosmos: string };
 const attackerPqcSecret = new Uint8Array(randomBytes(32)); // NOT the real one
 const attacker: UnifiedAccount = unifiedAccountFromSeed(Buffer.from(ecdsa.privateKey.slice(2), "hex"), { pqcSecret: attackerPqcSecret });
 if (attacker.cosmos !== ecdsa.cosmos) throw new Error("address mismatch");
 const eoa = privateKeyToAccount(ecdsa.privateKey);
 const wallet = createWalletClient({ account: eoa, chain: qore, transport: http() });
 
-const D = deployment().contracts;
+const D = JSON.parse(readFileSync(join(REPO_ROOT, "deployments", `${TARGET.deployment}.json`), "utf8")).contracts;
 const VAULT = D.QillVault as Address;
 const POOL = D.MockPool as Address;
 const TOKA = D.TokenA as Address;
@@ -122,6 +136,7 @@ async function snapshot() {
   const tb = (t: Address, who: Address) => pub.readContract({ address: t, abi: ERC20, functionName: "balanceOf", args: [who] }) as Promise<bigint>;
   return {
     drillNativeUqor: await getBalance(ecdsa.cosmos),
+    smartAccountUqor: TARGET.smartAccount && accountExists(TARGET.smartAccount) ? await getBalance(loadAccount(TARGET.smartAccount).cosmos) : 0n,
     vaultNativeWei: await pub.getBalance({ address: VAULT }),
     vaultA: await tb(TOKA, VAULT), vaultB: await tb(TOKB, VAULT),
     poolA: await tb(TOKA, POOL), poolB: await tb(TOKB, POOL),
@@ -221,16 +236,41 @@ async function vaultAttacks() {
   await attack("vault", "send native to vault + junk", () => evmSend({ to: VAULT, value: 1n, gas: 50_000n }));
 }
 
+async function agentKeyAttacks() {
+  if (!TARGET.agentKey || !TARGET.smartAccount) return;
+  // the published agent key, read from its file exactly as an attacker would copy it from the challenge page
+  const agent = JSON.parse(readFileSync(join(keyDir(), `${TARGET.agentKey}.link.json`), "utf8")) as { privateKey: Hex; address: Address };
+  const smart = loadAccount(TARGET.smartAccount).cosmos;
+  const relayer = loadAccount("relayer"); // stands in for the attacker's own PQC-registered relayer
+  const exec = async (to: Address, data: Hex, value?: bigint) => {
+    const r = await agentExecuteEvm({ relayer, smartAccount: smart, agent, to, data, gasLimit: 400_000n, value });
+    return { success: true, detail: `EXECUTED ${r.transactionHash}` };
+  };
+  const trade = (o: Record<string, unknown>) => ({ mandateId: keccak256(toHex("any")), pool: POOL, tokenIn: TOKA, tokenOut: TOKB, amountIn: 10n ** 18n, minOut: 0n, ...o });
+  const n = Number(await pub.readContract({ address: VAULT, abi: VAULT_ABI, functionName: "mandateCount" }));
+  const mid = n ? ((await pub.readContract({ address: VAULT, abi: VAULT_ABI, functionName: "mandateIds", args: [BigInt(n - 1)] })) as Hex) : keccak256(toHex("none"));
+  const call = (fn: string, args: unknown[]) => encodeFunctionData({ abi: VAULT_ABI, functionName: fn, args });
+
+  await attack("agent", "agent key: send 0.1 QOR to attacker", () => exec(SINK.evm, "0x", 10n ** 17n));
+  await attack("agent", "agent key: send 1 uqor (within rule)", () => exec(SINK.evm, "0x", 10n ** 12n));
+  await attack("agent", "agent key: Token A approve(attacker)", () => exec(TOKA, encodeFunctionData({ abi: ERC20, functionName: "approve", args: [SINK.evm, 2n ** 255n] })));
+  await attack("agent", "agent key: vault.withdraw (junk sig)", () => exec(VAULT, call("withdraw", [{ pubkey: JUNK_PK, signature: JUNK_SIG, nonce: 0n, expiry: 2n ** 40n }, SINK.evm, TOKA, 1n])));
+  await attack("agent", "agent key: trade, no guardian (soft limit 0)", () => exec(VAULT, call("trade", [trade({ mandateId: mid }), NO_GUARDIAN])));
+  await attack("agent", "agent key: trade, junk guardian sig", () => exec(VAULT, call("trade", [trade({ mandateId: mid }), { pubkey: JUNK_PK, signature: JUNK_SIG, nonce: 0n, expiry: 2n ** 40n }])));
+  await attack("agent", "agent key: trade into attacker 'pool'", () => exec(VAULT, call("trade", [trade({ mandateId: mid, pool: SINK.evm }), NO_GUARDIAN])));
+}
+
 // ------------------------------------------------------------------ run
 
 async function main() {
-  console.log(`attack bot | target ${NET.chainId} | drill ${eoa.address} (${ecdsa.cosmos}) | vault ${VAULT}`);
+  console.log(`attack bot [${TARGET_NAME}] | target ${NET.chainId} | drill ${eoa.address} (${ecdsa.cosmos}) | vault ${VAULT}`);
   const w = await evmWindow(ecdsa.cosmos);
   console.log(`drill EVM window: found=${w.found} live=${w.live}\n`);
   const before = await snapshot();
   await cosmosAttacks();
   await evmAttacks();
   await vaultAttacks();
+  await agentKeyAttacks();
   const after = await snapshot();
 
   const decreased = (Object.keys(before) as (keyof typeof before)[]).filter((k) =>

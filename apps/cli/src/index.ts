@@ -205,7 +205,8 @@ async function main() {
       const sa = smartAccountName();
       if (!sa) throw new Error("no smart account for this deployment");
       const addr = accountAddresses(sa).cosmos;
-      console.log(JSON.stringify({ rules: await readRules(addr), authenticators: await readAuthenticators(addr) }, null, 2));
+      console.log(JSON.stringify({ rules: await readRules(addr), authenticators: await readAuthenticators(addr) },
+        (_k, v) => (typeof v === "bigint" ? v.toString() : v), 2));
       return;
     }
     case "rules set": {

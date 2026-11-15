@@ -33,7 +33,11 @@ export const GLOBAL_LIMITS = {
   maxExpiryDays: 30,
   maxPerTrade: "1000",
   maxDaily: "5000",
-  /** Native QOR the smart account may move per authorised execution / per day (uqor). Agent trades move none. */
-  aaPerTxUqor: 1_000n,
-  aaDailyUqor: 10_000n,
+  /**
+   * Native QOR the smart account may move per authorised execution / per day (uqor). Agent trades move none.
+   * Kept at the minimum non-zero value: a rule-bound linked key may still send plain VALUE without an
+   * allowed_evm_calls entry, so these limits are the only bound on that path (0 would mean "no limit").
+   */
+  aaPerTxUqor: 1n,
+  aaDailyUqor: 1n,
 } as const;

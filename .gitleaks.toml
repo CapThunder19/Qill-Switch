@@ -20,4 +20,6 @@ description = "Test vectors and public material"
 paths = [
   '''contracts/test/vectors/.*''',
   '''packages/pq/test/vectors/.*''',
+  # INTENTIONALLY PUBLIC: the Steal This Agent challenge keys (generated only for the challenge)
+  '''apps/challenge/public/challenge.json''',
 ]

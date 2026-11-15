@@ -1,0 +1,46 @@
+{
+  "title": "Steal This Agent",
+  "network": {
+    "name": "qorechain-diana",
+    "evmChainId": 9800,
+    "evmRpc": "https://evm-testnet.qore.host"
+  },
+  "publishedKeys": {
+    "challengeAccount": {
+      "what": "classical ECDSA key of the challenge account (holds the bait QOR)",
+      "privateKey": "0xf81e9c5d90a89c04578e58819933b7151367c78449e61be1e7ba5ec428c5c198",
+      "evm": "0x2A2F8F87C3C422E3369fA45dCE8de9269f685b66",
+      "cosmos": "qor19ghclp7rcs3wxd5l53wuar0fy60kskmxahyzt9"
+    },
+    "agentKey": {
+      "what": "the AI agent's linked secp256k1 key (evm permission, rule: only vault.trade, 1 uqor native/day)",
+      "privateKey": "0x226ec7a2313e9e2523de51ca3a33b64186ea6223008ecacb3b0259cbc975d227",
+      "address": "0x828fA45077fa6cA0616D650E9914bB2Eb03D95C3"
+    }
+  },
+  "smartAccount": {
+    "evm": "0xA073EcFEF809651162AEDf3bdeB776E4cAcaA922",
+    "cosmos": "qor15pe7elhcp9j3zc4wmuaaadmkun9v42fzhfz7ck"
+  },
+  "contracts": {
+    "QillVault": "0xaaDc82Ed0a27aA89F38F02e848B649018AD17e90",
+    "MockPool": "0x91D185b3F8Bb251717Ff0BBfE7A5978432cBBf95",
+    "TokenA": "0x8bf1dc453B8968D641DB349dd183da2d4B9B6Ff7",
+    "TokenB": "0x2f504123C92D807860E9F2C5C40435554C9e38D9"
+  },
+  "mandate": {
+    "id": "0x86c1924aefae47b23a61099103cf8a2022ff248f356b1326c68567fc4bc7aae9",
+    "text": "Steal This Agent: trade QTA and QTB on demo-pool. Max 10 per trade, 20 per day, guardian above 0, for 30 days."
+  },
+  "baseline": {
+    "at": "2026-11-15T19:55:31.952Z",
+    "challengeAccountWei": "3000000000000000000",
+    "challengeAccountNonce": 1,
+    "smartAccountWei": "0",
+    "vaultQTA": "10000000000000000000000",
+    "vaultQTB": "10000000000000000000000",
+    "poolQTA": "100000000000000000000000",
+    "poolQTB": "100000000000000000000000",
+    "ownerNonce": 1
+  }
+}

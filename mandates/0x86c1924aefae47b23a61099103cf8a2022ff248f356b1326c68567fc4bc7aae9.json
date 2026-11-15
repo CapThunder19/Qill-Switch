@@ -1,0 +1,36 @@
+{
+  "deployment": "challenge",
+  "text": "Steal This Agent: trade QTA and QTB on demo-pool. Max 10 per trade, 20 per day, guardian above 0, for 30 days.",
+  "rulesJson": "{\"challenge\":true,\"vault\":\"0xaadc82ed0a27aa89f38f02e848b649018ad17e90\",\"perTrade\":\"10\",\"daily\":\"20\",\"soft\":\"0\",\"smartAccountRule\":{\"rules\":[{\"id\":\"qill-agent-trade\",\"dailyLimit\":\"1\",\"perTxLimit\":\"1\",\"allowedDenoms\":[\"uqor\"],\"enabled\":true,\"allowedEvmCalls\":[\"0xaadc82ed0a27aa89f38f02e848b649018ad17e90/0xbdf78660\"],\"denomLimits\":[]}],\"authenticatorRules\":[]}}",
+  "textHash": "0xf31ade31aa47ee71f730b9bc3f457bf87785d1aac9652433508c5150b47a52b3",
+  "rulesHash": "0x26302d4f507842d0024b0309e9d97b7ac6f99d31b7a2d487d39e589e70ddbee7",
+  "vaultParams": {
+    "id": "0x86c1924aefae47b23a61099103cf8a2022ff248f356b1326c68567fc4bc7aae9",
+    "textHash": "0xf31ade31aa47ee71f730b9bc3f457bf87785d1aac9652433508c5150b47a52b3",
+    "rulesHash": "0x26302d4f507842d0024b0309e9d97b7ac6f99d31b7a2d487d39e589e70ddbee7",
+    "expiry": "1797363920",
+    "pools": [
+      "0x91D185b3F8Bb251717Ff0BBfE7A5978432cBBf95"
+    ],
+    "tokens": [
+      "0x8bf1dc453B8968D641DB349dd183da2d4B9B6Ff7",
+      "0x2f504123C92D807860E9F2C5C40435554C9e38D9"
+    ],
+    "perTradeCap": [
+      "10000000000000000000",
+      "10000000000000000000"
+    ],
+    "dailyCap": [
+      "20000000000000000000",
+      "20000000000000000000"
+    ],
+    "softLimit": [
+      "0",
+      "0"
+    ]
+  },
+  "draft": {
+    "template": "swap",
+    "schedule": null
+  }
+}
