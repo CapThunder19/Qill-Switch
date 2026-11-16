@@ -6,6 +6,9 @@ windows, EVM transfers, token approvals and drain calls on our contracts.
 
 ## What we registered
 
+**Registered on 17 Nov 2026** (before the 23:59 UTC deadline); the registration page shows exactly the account, EVM
+address and four contracts below.
+
 | Item | Value |
 |---|---|
 | Drill account (EVM) | `0x93c91b9c0ae17023FDe445c99Cb435557FA10499` |
