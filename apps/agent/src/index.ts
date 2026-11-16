@@ -182,7 +182,8 @@ async function step() {
   // guardian ladder
   let guardian: OwnerAuth = NO_GUARDIAN;
   let guardianDecision: unknown;
-  if (d.needsGuardian) {
+  // --no-guardian: submit as decided (demo of on-chain enforcement: the vault itself must refuse)
+  if (d.needsGuardian && USE_GUARDIAN) {
     const g = await askGuardian({ mandateId: m.id, pool: POOL, tokenIn: d.tokenIn!, tokenOut: d.tokenOut!, amountIn: d.amountIn!, minOut: d.minOut! }, d.why + (reasoning ? " " + reasoning : ""));
     guardianDecision = { approved: g.approved, reasons: g.reasons, review: g.review };
     if (g.approved && g.guardianAuth) {

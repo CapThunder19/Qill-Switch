@@ -16,6 +16,7 @@ This file records how AI was used to **build** Qill Switch and how AI **runs ins
 | 2026-11-14 | AI coding assistant | Phase 2: spikes 3-4 (smart account, linked agent key, MsgExecuteEVM), mandate package, owner CLI, agent loop; live demo vault | Test + on-chain output reviewed |
 | 2026-11-16 | AI coding assistant | Phase 3: guardian service + policy tests, approval ladder, fleet Q-Day button (tested on a disposable fleet), dashboard + localhost signer API, threat model v2 | On-chain runs reviewed |
 | 2026-11-16 | AI coding assistant | Phase 4: challenge deployment and setup script, published-key attack runs (39/0), found + fixed the linked-key value path (1 uqor rule, swept smart account), public challenge page, Pages workflow, refill/monitor | On-chain runs reviewed |
+| 2026-11-16 | AI coding assistant | Phase 5: CI, final attack runs (drill 32/0, challenge 39/0), featured image, clean-clone DEMO.md, VIDEO_SCRIPT.md, final README and threat model | Owner to review before submission |
 
 The build brief is kept in the repo as `QILL_SWITCH_BUILD_PROMPT.md`.
 

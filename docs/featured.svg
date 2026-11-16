@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#071413"/>
+      <stop offset="1" stop-color="#0f2423"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#163533" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#grid)" opacity="0.55"/>
+
+  <!-- title -->
+  <text x="72" y="118" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="4" fill="#3cc6bd">POST-QUANTUM AI AGENTS · QORECHAIN</text>
+  <text x="70" y="208" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="96" font-weight="800" fill="#eef7f6" letter-spacing="-3">Qill Switch</text>
+  <text x="72" y="262" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="30" fill="#a9c4c1">Quantum-signed mandates for AI agents.</text>
+  <text x="72" y="302" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="30" fill="#a9c4c1">Stopped with one ML-DSA-87 signature.</text>
+
+  <!-- flow -->
+  <g font-family="Inter, Segoe UI, Arial, sans-serif">
+    <rect x="72" y="372" width="240" height="132" rx="18" fill="#0d2e2b" stroke="#3cc6bd" stroke-width="2"/>
+    <text x="96" y="412" font-size="15" font-weight="700" letter-spacing="2" fill="#3cc6bd">OWNER</text>
+    <text x="96" y="446" font-size="24" font-weight="700" fill="#eef7f6">ML-DSA-87 key</text>
+    <text x="96" y="478" font-size="17" fill="#a9c4c1">mandates · STOP · Q-Day</text>
+
+    <path d="M318 438 H402" stroke="#3cc6bd" stroke-width="3"/>
+    <path d="M402 438 l-12 -8 v16 z" fill="#3cc6bd"/>
+
+    <rect x="410" y="352" width="320" height="172" rx="18" fill="#10322f" stroke="#3cc6bd" stroke-width="2.5"/>
+    <text x="436" y="392" font-size="15" font-weight="700" letter-spacing="2" fill="#3cc6bd">QILLVAULT</text>
+    <text x="436" y="426" font-size="22" font-weight="700" fill="#eef7f6">pqcVerify on chain</text>
+    <text x="436" y="458" font-size="17" fill="#a9c4c1">caps · daily limits · expiry</text>
+    <text x="436" y="484" font-size="17" fill="#a9c4c1">pool allowlist · guardian co-sign</text>
+    <text x="436" y="510" font-size="17" fill="#a9c4c1">pause · Q-Day freeze</text>
+
+    <path d="M818 438 H736" stroke="#3cc6bd" stroke-width="3" stroke-dasharray="7 6"/>
+    <path d="M736 438 l12 -8 v16 z" fill="#3cc6bd"/>
+
+    <rect x="824" y="372" width="300" height="132" rx="18" fill="#0d2e2b" stroke="#3cc6bd" stroke-width="2"/>
+    <text x="848" y="412" font-size="15" font-weight="700" letter-spacing="2" fill="#3cc6bd">AI AGENT</text>
+    <text x="848" y="446" font-size="24" font-weight="700" fill="#eef7f6">smart-account key</text>
+    <text x="848" y="478" font-size="17" fill="#a9c4c1">may only call vault.trade</text>
+
+    <!-- attacker -->
+    <rect x="824" y="540" width="300" height="56" rx="14" fill="#3a1a1c" stroke="#f0656c" stroke-width="2"/>
+    <text x="848" y="575" font-size="19" font-weight="700" fill="#f0656c">stolen ECDSA key → rejected</text>
+    <path d="M820 568 H560 V528" stroke="#f0656c" stroke-width="2.5" stroke-dasharray="4 6" fill="none"/>
+    <circle cx="560" cy="532" r="13" fill="#3a1a1c" stroke="#f0656c" stroke-width="2.5"/>
+    <path d="M553 525 l14 14 M567 525 l-14 14" stroke="#f0656c" stroke-width="3"/>
+  </g>
+
+  <!-- stat -->
+  <g font-family="Inter, Segoe UI, Arial, sans-serif">
+    <rect x="840" y="96" width="284" height="150" rx="18" fill="#0b1f1e" stroke="#1d4441"/>
+    <text x="864" y="150" font-size="54" font-weight="800" fill="#eef7f6">0 / 71</text>
+    <text x="864" y="184" font-size="18" fill="#a9c4c1">attacks succeeded with</text>
+    <text x="864" y="208" font-size="18" fill="#a9c4c1">the stolen keys (testnet)</text>
+  </g>
+</svg>

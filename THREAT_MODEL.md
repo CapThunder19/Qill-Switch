@@ -1,4 +1,4 @@
-# Threat model (v3, Phases 1–4)
+# Threat model (final, v3: Phases 1–5)
 
 ## Assets
 
