@@ -1,0 +1,21 @@
+name: ci
+# Contract tests (Hardhat 3 Solidity tests: unit, fuzz, invariant) + TypeScript tests. No secrets or network needed.
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.4.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: pnpm install --no-frozen-lockfile
+      - run: pnpm --filter @qill/contracts build   # TS packages read the compiled QillVault ABI
+      - run: pnpm test
+      - run: pnpm --filter @qill/dashboard build && pnpm --filter @qill/challenge build
