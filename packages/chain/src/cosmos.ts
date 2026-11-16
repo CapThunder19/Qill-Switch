@@ -21,7 +21,7 @@ import {
 import { bytesToHex } from "viem";
 
 export const NET = {
-  chainId: process.env.QORE_CHAIN_ID ?? "qorechain-diana",
+  chainId: process.env.QORE_CHAIN_ID?.trim() || "qorechain-diana",
   rest: (process.env.QORE_REST || "https://api-testnet.qore.host").replace(/\/$/, ""),
   evmRpc: process.env.QORE_EVM_RPC || "https://evm-testnet.qore.host",
   evmChainId: 9800,

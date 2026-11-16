@@ -27,7 +27,8 @@
     "dashboard:build": "pnpm --filter @qill/dashboard build",
     "challenge:refill": "pnpm --silent --filter @qill/chain exec tsx scripts/challenge-refill.ts",
     "challenge:dev": "pnpm --filter @qill/challenge dev",
-    "challenge:build": "pnpm --filter @qill/challenge build"
+    "challenge:build": "pnpm --filter @qill/challenge build",
+    "llm:check": "pnpm --silent --filter @qill/llm exec tsx scripts/check.ts"
   },
   "devDependencies": {
     "typescript": "^5.6.3",

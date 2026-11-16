@@ -16,8 +16,13 @@ import { bytesToHex, hexToBytes, keccak256 } from "viem";
  */
 export const REPO_ROOT = resolve(import.meta.dirname, "../../..");
 
+// .env at the repo root (gitignored); existing environment variables win. Empty values count as unset.
+if (existsSync(join(REPO_ROOT, ".env"))) {
+  try { process.loadEnvFile(join(REPO_ROOT, ".env")); } catch { /* malformed .env: ignore */ }
+}
+
 export function keyDir(): string {
-  const dir = resolve(process.env.QILL_KEY_DIR ?? join(homedir(), ".qill", "keys"));
+  const dir = resolve(process.env.QILL_KEY_DIR?.trim() || join(homedir(), ".qill", "keys"));
   if ((dir + sep).toLowerCase().startsWith((REPO_ROOT + sep).toLowerCase()))
     throw new Error(`QILL_KEY_DIR must be outside the repo (${dir})`);
   return dir;

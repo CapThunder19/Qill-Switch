@@ -102,26 +102,35 @@ describe("compiler", () => {
 });
 
 describe("LLM path goes through the same validator", () => {
-  const fakeClient = (draft: unknown, stop_reason = "end_turn") =>
-    ({ beta: { messages: { parse: async (req: any) => {
+  // Gemini: the model returns JSON text, validated by @qill/llm and then by the mandate validator
+  const gem = (draft: unknown) => ({ provider: "gemini" as const, clients: { gemini: { models: { generateContent: async () => ({ text: draft === undefined ? undefined : JSON.stringify(draft) }) } } } });
+  // Claude: structured-output parse
+  const claude = (draft: unknown, stop_reason = "end_turn") => ({ provider: "anthropic" as const, clients: { anthropic: { beta: { messages: {
+    create: async () => ({}),
+    parse: async (req: any) => {
       expect(req.model).toBe("claude-opus-5-5");
       expect(req.fallbacks).toBe("default");
-      return { parsed_output: draft, stop_reason, stop_details: null };
-    } } } }) as any;
+      return { parsed_output: draft, stop_reason, stop_details: stop_reason === "refusal" ? { explanation: "no" } : null };
+    },
+  } } } } });
 
-  it("accepts a good LLM draft", async () => {
-    const c = await compileWithLlm(TEXT, U, { client: fakeClient(GOOD), now: 1_800_000_000 });
-    expect(c.source).toBe("llm");
-    expect(c.vaultParams.perTradeCap[0]).toBe(parseUnits("100", 18));
-  });
-  it("rejects an LLM that inflates caps, invents pools or stretches expiry", async () => {
-    await expect(compileWithLlm(TEXT, U, { client: fakeClient({ ...GOOD, perTradeCap: "100000", dailyCap: "100000" }) })).rejects.toThrow(/global ceiling/);
-    await expect(compileWithLlm(TEXT, U, { client: fakeClient({ ...GOOD, pools: ["router"] }) })).rejects.toThrow(/unknown pool/);
-    await expect(compileWithLlm(TEXT, U, { client: fakeClient({ ...GOOD, expiryDays: 90 }) })).rejects.toThrow(/expiryDays/);
-  });
-  it("surfaces refusals and empty output", async () => {
-    await expect(compileWithLlm(TEXT, U, { client: fakeClient(null, "refusal") })).rejects.toThrow(/declined/);
-    await expect(compileWithLlm(TEXT, U, { client: fakeClient(null) })).rejects.toThrow(/no parsable draft/);
+  for (const [name, via] of [["gemini", gem], ["claude", claude]] as const) {
+    it(`${name}: accepts a good draft`, async () => {
+      const c = await compileWithLlm(TEXT, U, { ...via(GOOD), now: 1_800_000_000 });
+      expect(c.source).toBe("llm");
+      expect(c.vaultParams.perTradeCap[0]).toBe(parseUnits("100", 18));
+    });
+    it(`${name}: rejects inflated caps, invented pools, stretched expiry`, async () => {
+      await expect(compileWithLlm(TEXT, U, via({ ...GOOD, perTradeCap: "100000", dailyCap: "100000" }))).rejects.toThrow(/global ceiling/);
+      await expect(compileWithLlm(TEXT, U, via({ ...GOOD, pools: ["router"] }))).rejects.toThrow(/unknown pool/);
+      await expect(compileWithLlm(TEXT, U, via({ ...GOOD, expiryDays: 90 }))).rejects.toThrow(/expiryDays/);
+    });
+  }
+  it("surfaces refusals, off-schema and empty output", async () => {
+    await expect(compileWithLlm(TEXT, U, claude(null, "refusal"))).rejects.toThrow(/declined/);
+    await expect(compileWithLlm(TEXT, U, claude(null))).rejects.toThrow(/no parsable draft/);
+    await expect(compileWithLlm(TEXT, U, gem({ ...GOOD, perTradeCap: 100 }))).rejects.toThrow(/no parsable draft/);
+    await expect(compileWithLlm(TEXT, U, gem(undefined))).rejects.toThrow(/no parsable draft/);
   });
 });
 

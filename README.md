@@ -19,7 +19,7 @@ Built during the QoreChain "Build Before Q-Day" Developer Fest, track **Post-Qua
 
 | What | Result |
 |---|---|
-| Tests | **85 passing**: 42 Solidity (unit, fuzz ×1000, invariant ×256) + 43 TypeScript; CI runs them on every push |
+| Tests | **94 passing**: 42 Solidity (unit, fuzz ×1000, invariant ×256) + 52 TypeScript; CI runs them on every push |
 | Attack bot vs the drill deployment (only the drill account's ECDSA key) | **32 attempts, 0 successes**, 0 value moved ([log](docs/attack-bot-final-drill.txt)) |
 | Attack bot vs Steal This Agent (published account key + published agent key) | **39 attempts, 0 successes**, 0 value moved ([log](docs/attack-bot-final-challenge.txt)) |
 | Q-Day button on a test fleet | vault frozen, agent key revoked, windows closed in **one round**; the revoked key is then refused by the chain ([log](docs/qday-test-run-1.txt)) |
@@ -39,7 +39,7 @@ Relayer: window scoped to the vault   MsgExecuteEVM via the agent's smart accoun
               QillVault: pqcVerify(owner/guardian) · mandate · caps · pool allowlist · pause · Q-Day
 ```
 
-- **Mandates** ([packages/mandate](packages/mandate)): plain English → template parser or Claude structured output →
+- **Mandates** ([packages/mandate](packages/mandate)): plain English → template parser or LLM structured output (Gemini or Claude, [packages/llm](packages/llm)) →
   a deterministic validator (no missing or zero limits, ≤ 30 days, known pools/tokens only, global ceilings) → vault
   params + the smart-account rule + `textHash`/`rulesHash`, all signed together by the owner.
 - **Vault** ([contracts/src/QillVault.sol](contracts/src/QillVault.sol)): no `msg.sender` owner. Every owner action is
@@ -122,7 +122,8 @@ and plays no part in the project.
 contracts/        Hardhat 3: QillVault, QillMessage, IQorePQC, mocks, Solidity tests (forge-std style)
 packages/pq       ML-DSA-87 helpers, canonical message encoding, key files
 packages/chain    accounts, hybrid Cosmos txs, windows, relayer, smart accounts, vault client, Q-Day
-packages/mandate  mandate schema, template parser, validator, compiler, Claude extraction
+packages/mandate  mandate schema, template parser, validator, compiler, LLM extraction
+packages/llm      provider-neutral LLM layer: Gemini (default when GEMINI_API_KEY is set) or Claude
 apps/cli          qill: the owner CLI
 apps/agent        treasury agent
 apps/guardian     guardian service
@@ -141,7 +142,8 @@ fleet/            Q-Day fleets
 | [forge-std](https://github.com/foundry-rs/forge-std) v1.9.4 | MIT / Apache-2.0 | test cheatcodes and assertions |
 | [viem](https://viem.sh) | MIT | EVM client |
 | [@noble/post-quantum](https://github.com/paulmillr/noble-post-quantum), [@noble/hashes](https://github.com/paulmillr/noble-hashes) | MIT | ML-DSA-87, randomness |
-| [@anthropic-ai/sdk](https://github.com/anthropics/anthropic-sdk-typescript) 1.8.0 | Apache-2.0 | Claude: mandate extraction, agent narration, guardian review |
+| [@google/genai](https://github.com/googleapis/js-genai) 3.3.0 | Apache-2.0 | Gemini: mandate extraction, agent narration, guardian review |
+| [@anthropic-ai/sdk](https://github.com/anthropics/anthropic-sdk-typescript) 1.8.0 | Apache-2.0 | Claude, the alternative provider |
 | [Zod](https://zod.dev) | MIT | mandate and verdict schemas |
 | [React](https://react.dev), [Vite](https://vitejs.dev), [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react) | MIT | dashboard and challenge page |
 | [Vitest](https://vitest.dev), [tsx](https://github.com/privatenumber/tsx), [TypeScript](https://www.typescriptlang.org) | MIT / MIT / Apache-2.0 | tests and tooling |

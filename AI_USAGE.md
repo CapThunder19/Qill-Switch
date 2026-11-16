@@ -17,6 +17,7 @@ This file records how AI was used to **build** Qill Switch and how AI **runs ins
 | 2026-11-16 | AI coding assistant | Phase 3: guardian service + policy tests, approval ladder, fleet Q-Day button (tested on a disposable fleet), dashboard + localhost signer API, threat model v2 | On-chain runs reviewed |
 | 2026-11-16 | AI coding assistant | Phase 4: challenge deployment and setup script, published-key attack runs (39/0), found + fixed the linked-key value path (1 uqor rule, swept smart account), public challenge page, Pages workflow, refill/monitor | On-chain runs reviewed |
 | 2026-11-16 | AI coding assistant | Phase 5: CI, final attack runs (drill 32/0, challenge 39/0), featured image, clean-clone DEMO.md, VIDEO_SCRIPT.md, final README and threat model | Owner to review before submission |
+| 2026-11-16 | AI coding assistant | Added packages/llm: provider-neutral LLM layer so the owner can use a free Gemini key (Claude still supported); .env loading with empty-value handling (fixed an empty dashboard token being accepted) | Tests reviewed |
 
 The owner's build brief (phases, track requirements, contract spec) guided the work; it is not part of the repo.
 
@@ -24,6 +25,6 @@ The owner's build brief (phases, track requirements, contract spec) guided the w
 
 | Component | Role | Can it grant power? |
 |---|---|---|
-| Mandate compiler (`packages/mandate`) | Turns plain English into mandate JSON from fixed templates; a deterministic validator checks every field | No: the owner must ML-DSA-sign the compiled output |
-| Treasury agent (`apps/agent`) | A deterministic rebalance/DCA strategy sizes each trade inside the mandate; Claude (optional) only writes the reasoning note | No: limits are enforced by the vault and the smart-account rule; the LLM never chooses amounts |
-| Guardian (`apps/guardian`) | Separate process and prompt (model via `GUARDIAN_LLM_MODEL`, default `claude-opus-5-5`); deterministic policy first, LLM review can only add a veto | No: it can only veto. Its signature is needed *in addition to* the mandate |
+| Mandate compiler (`packages/mandate`) | Turns plain English into mandate JSON (fixed templates, or Gemini / Claude structured output through `packages/llm`); a deterministic validator checks every field | No: the owner must ML-DSA-sign the compiled output |
+| Treasury agent (`apps/agent`) | A deterministic rebalance/DCA strategy sizes each trade inside the mandate; an LLM (optional: Gemini or Claude) only writes the reasoning note | No: limits are enforced by the vault and the smart-account rule; the LLM never chooses amounts |
+| Guardian (`apps/guardian`) | Separate process and prompt; provider and model set per role (`GUARDIAN_LLM_PROVIDER` / `GUARDIAN_LLM_MODEL`, Gemini by default when `GEMINI_API_KEY` is set); deterministic policy first, LLM review can only add a veto | No: it can only veto. Its signature is needed *in addition to* the mandate |

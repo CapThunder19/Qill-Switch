@@ -15,9 +15,10 @@ import { join } from "node:path";
 import { encodeFunctionData, parseAbi, type Address, type Hex } from "viem";
 import { REPO_ROOT, publicClient as pub, VAULT_ABI, signGuardianApproval, type TradeParams } from "@qill/chain";
 import { evaluate, type GuardianFacts } from "./policy.js";
-import { llmReview, GUARDIAN_MODEL } from "./review.js";
+import { llmReview, guardianModel } from "./review.js";
+import { providerFor } from "@qill/llm";
 
-const PORT = Number(process.env.GUARDIAN_PORT ?? 8787);
+const PORT = Number(process.env.GUARDIAN_PORT?.trim() || 8787);
 const LOG = join(REPO_ROOT, "logs", "guardian.jsonl");
 const POOL_ABI = parseAbi(["function quote(address,address,uint256) view returns (uint256)", "function reserve0() view returns (uint256)", "function reserve1() view returns (uint256)", "function token0() view returns (address)"]);
 const big = (_k: string, v: unknown) => (typeof v === "bigint" ? v.toString() : v);
@@ -93,7 +94,7 @@ async function review(body: any) {
 createServer(async (req, res) => {
   const send = (code: number, body: unknown) => { res.writeHead(code, { "content-type": "application/json" }); res.end(JSON.stringify(body, big)); };
   try {
-    if (req.method === "GET" && req.url === "/health") return send(200, { ok: true, model: GUARDIAN_MODEL, llm: Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN) });
+    if (req.method === "GET" && req.url === "/health") return send(200, { ok: true, review: guardianModel(), llm: providerFor("guardian") !== "none" });
     if (req.method !== "POST" || req.url !== "/review") return send(404, { error: "not found" });
     let raw = "";
     for await (const chunk of req) { raw += chunk; if (raw.length > 64_000) return send(413, { error: "too large" }); }
@@ -102,5 +103,5 @@ createServer(async (req, res) => {
     send(500, { approved: false, reasons: [`guardian error: ${e.message}`] });
   }
 }).listen(PORT, "127.0.0.1", () => {
-  console.log(`guardian listening on 127.0.0.1:${PORT} (review model ${GUARDIAN_MODEL}, LLM ${process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN ? "on" : "off: deterministic policy only"})`);
+  console.log(`guardian listening on 127.0.0.1:${PORT} (LLM review: ${providerFor("guardian") === "none" ? "off, deterministic policy only" : guardianModel()})`);
 });

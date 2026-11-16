@@ -156,7 +156,7 @@ async function main() {
     case "mandate compile": {
       if (!b || !c) throw new Error('usage: qill mandate compile "<text>" [--llm]');
       const U = universeFromDeployment(DEPLOYMENT);
-      if (USE_LLM && !llmAvailable()) throw new Error("--llm needs ANTHROPIC_API_KEY (or ANTHROPIC_AUTH_TOKEN)");
+      if (USE_LLM && !llmAvailable()) throw new Error("--llm needs GEMINI_API_KEY (or ANTHROPIC_API_KEY) in .env or the environment");
       const compiled = USE_LLM ? await compileWithLlm(c, U) : compileFromText(c, U);
       sideBySide(compiled);
       console.log(`\nwrote ${saveMandate(compiled)}\nnext: qill mandate submit <file>`);

@@ -4,6 +4,13 @@
   "private": true,
   "license": "MIT",
   "type": "module",
-  "scripts": { "agent": "tsx src/index.ts", "typecheck": "tsc --noEmit" },
-  "dependencies": { "@anthropic-ai/sdk": "1.8.0", "@qill/chain": "workspace:*", "viem": "^2.21.0" }
+  "scripts": {
+    "agent": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@qill/chain": "workspace:*",
+    "viem": "^2.21.0",
+    "@qill/llm": "workspace:*"
+  }
 }

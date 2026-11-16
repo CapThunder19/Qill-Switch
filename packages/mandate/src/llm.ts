@@ -1,9 +1,6 @@
-import Anthropic from "@anthropic-ai/sdk";
-import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
-import { MandateDraftSchema, TEMPLATES, GLOBAL_LIMITS, type MandateDraft, type Universe } from "./schema.js";
+import { generateJson, providerFor, modelFor, type Clients, type Provider } from "@qill/llm";
+import { MandateDraftSchema, TEMPLATES, GLOBAL_LIMITS, type Universe } from "./schema.js";
 import { compileDraft, type CompiledMandate } from "./compile.js";
-
-export const MANDATE_MODEL = process.env.MANDATE_LLM_MODEL || "claude-opus-5-5";
 
 function systemPrompt(universe: Universe): string {
   return [
@@ -19,28 +16,27 @@ function systemPrompt(universe: Universe): string {
 }
 
 /**
- * LLM extraction (Claude, structured output) → the SAME deterministic validator + compiler as the template path.
- * The model only proposes; it cannot produce anything the validator would not accept from the template parser.
- * Server-side refusal fallback is enabled (`fallbacks: "default"`).
+ * LLM extraction (Gemini or Claude, structured output, see @qill/llm) → the SAME deterministic validator + compiler as
+ * the template path. The model only proposes; it cannot produce anything the validator would not accept from the
+ * template parser.
  */
-export async function compileWithLlm(text: string, universe: Universe, opts: { client?: Anthropic; now?: number } = {}):
+export async function compileWithLlm(text: string, universe: Universe, opts: { clients?: Clients; provider?: Provider; now?: number } = {}):
   Promise<CompiledMandate> {
-  const client = opts.client ?? new Anthropic();
-  const response = await client.beta.messages.parse({
-    model: MANDATE_MODEL,
-    max_tokens: 4000,
-    betas: ["server-side-fallback-2026-07-01"],
-    fallbacks: "default",
-    output_config: { effort: "low", format: betaZodOutputFormat(MandateDraftSchema) },
+  const r = await generateJson(MandateDraftSchema, {
+    role: "mandate", provider: opts.provider, clients: opts.clients,
     system: systemPrompt(universe),
-    messages: [{ role: "user", content: `<owner_instructions>\n${text}\n</owner_instructions>` }],
+    user: `<owner_instructions>\n${text}\n</owner_instructions>`,
   });
-  if (response.stop_reason === "refusal") throw new Error(`model declined: ${response.stop_details?.explanation ?? "refusal"}`);
-  const draft = response.parsed_output as MandateDraft | null;
-  if (!draft) throw new Error(`model returned no parsable draft (stop_reason ${response.stop_reason})`);
-  return compileDraft(text, draft, universe, { now: opts.now, source: "llm" });
+  if (r.refused) throw new Error(`model declined: ${r.error}`);
+  if (!r.value) throw new Error(`model returned no parsable draft (${r.provider} ${r.model}: ${r.error})`);
+  return compileDraft(text, r.value, universe, { now: opts.now, source: "llm" });
 }
 
 export function llmAvailable(): boolean {
-  return Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
+  return providerFor("mandate") !== "none";
+}
+
+export function llmDescription(): string {
+  const p = providerFor("mandate");
+  return p === "none" ? "no LLM configured" : `${p} ${modelFor("mandate", p)}`;
 }

@@ -13,8 +13,8 @@ import { createPublicClient, http, defineChain, bytesToHex } from "viem";
 import { loadAccount } from "../src/accounts.js";
 import { bankSend, closeWindow, evmWindow, getAccountInfo, getBalance, pqcStatus, registerPqcKey, NET } from "../src/cosmos.js";
 
-const DRILL_BOOT_UQOR = BigInt(process.env.DRILL_BOOT_UQOR ?? "150000"); // 0.15 QOR: fee for the registration tx only
-const DRILL_TARGET_UQOR = BigInt(process.env.DRILL_TARGET_UQOR ?? "20000000"); // 20 QOR for deployment + drill proof
+const DRILL_BOOT_UQOR = BigInt(process.env.DRILL_BOOT_UQOR?.trim() || "150000"); // 0.15 QOR: fee for the registration tx only
+const DRILL_TARGET_UQOR = BigInt(process.env.DRILL_TARGET_UQOR?.trim() || "20000000"); // 20 QOR for deployment + drill proof
 
 const qore = defineChain({ id: 9800, name: "qorechain-diana", nativeCurrency: { name: "QOR", symbol: "QOR", decimals: 18 },
   rpcUrls: { default: { http: [NET.evmRpc] } } });

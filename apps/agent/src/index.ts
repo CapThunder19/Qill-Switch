@@ -14,7 +14,7 @@
  */
 import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import Anthropic from "@anthropic-ai/sdk";
+import { generateText } from "@qill/llm";
 import { encodeFunctionData, formatUnits, keccak256, parseAbi, parseUnits, toHex, type Address, type Hex } from "viem";
 import {
   REPO_ROOT, loadAccount, publicClient as pub, VAULT_ABI, agentExecuteEvm, loadOrCreateLinkKey, TxFailed, NO_GUARDIAN, type OwnerAuth,
@@ -25,7 +25,7 @@ const opt = (k: string) => { const i = args.indexOf(k); return i >= 0 ? args[i +
 const ONCE = args.includes("--once");
 const DRY = args.includes("--dry");
 const USE_GUARDIAN = !args.includes("--no-guardian");
-const GUARDIAN_URL = process.env.GUARDIAN_URL ?? "http://127.0.0.1:8787";
+const GUARDIAN_URL = process.env.GUARDIAN_URL?.trim() || "http://127.0.0.1:8787";
 /** demo knob: force the trade size (token units); the vault and guardian still enforce every limit */
 const FORCE_AMOUNT = opt("--amount");
 const INTERVAL = Number(opt("--interval") ?? 60);
@@ -147,23 +147,13 @@ async function decide(m: ActiveMandate): Promise<Decision> {
 // ------------------------------------------------------------------ LLM narration (optional)
 
 async function narrate(d: Decision, mandateId: Hex): Promise<string | undefined> {
-  if (!process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_AUTH_TOKEN) return undefined;
-  try {
-    const client = new Anthropic();
-    const r = await client.beta.messages.create({
-      model: process.env.AGENT_LLM_MODEL || "claude-opus-5-5",
-      max_tokens: 1000,
-      betas: ["server-side-fallback-2026-07-01"],
-      fallbacks: "default",
-      output_config: { effort: "low" },
-      system: "You are the voice of a treasury agent. In two short sentences, explain the decision below to the owner. Do not suggest different amounts; the decision is final and was made by a deterministic strategy inside a signed mandate.",
-      messages: [{ role: "user", content: JSON.stringify({ mandateId, decision: { ...d, amountIn: d.amountIn?.toString(), minOut: d.minOut?.toString(), quote: d.quote?.toString() } }) }],
-    });
-    if (r.stop_reason === "refusal") return undefined;
-    return r.content.flatMap((c) => (c.type === "text" ? [c.text] : [])).join(" ").trim();
-  } catch {
-    return undefined; // narration is cosmetic; never block or alter a decision
-  }
+  // provider from the environment (Gemini or Claude, see @qill/llm); cosmetic: never blocks or alters a decision
+  const r = await generateText({
+    role: "agent",
+    system: "You are the voice of a treasury agent. In two short sentences, explain the decision below to the owner. Do not suggest different amounts; the decision is final and was made by a deterministic strategy inside a signed mandate.",
+    user: JSON.stringify({ mandateId, decision: { ...d, amountIn: d.amountIn?.toString(), minOut: d.minOut?.toString(), quote: d.quote?.toString(), softLimit: d.softLimit?.toString() } }),
+  });
+  return r?.text;
 }
 
 // ------------------------------------------------------------------ execute

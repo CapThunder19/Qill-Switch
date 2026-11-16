@@ -16,8 +16,9 @@ import {
   readRules, readAuthenticators, signOwnerCommand, relayToVault, loadFleet, snapshot, qDay,
 } from "@qill/chain";
 
-const PORT = Number(process.env.DASHBOARD_API_PORT ?? 8788);
-const TOKEN = process.env.QILL_DASHBOARD_TOKEN ?? randomBytes(16).toString("hex");
+const PORT = Number(process.env.DASHBOARD_API_PORT?.trim() || 8788);
+const TOKEN = process.env.QILL_DASHBOARD_TOKEN?.trim() || randomBytes(16).toString("hex");
+if (TOKEN.length < 16) throw new Error("QILL_DASHBOARD_TOKEN must be at least 16 characters (or leave it empty for a random one)");
 const DIST = join(REPO_ROOT, "apps/dashboard/dist");
 const SYM: Record<string, string> = {};
 const big = (_k: string, v: unknown) => (typeof v === "bigint" ? v.toString() : v);

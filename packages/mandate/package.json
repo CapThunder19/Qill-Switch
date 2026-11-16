@@ -13,10 +13,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "1.8.0",
     "@qill/chain": "workspace:*",
     "@qorechain/sdk": "0.14.0",
     "viem": "^2.21.0",
-    "zod": "4.6.7"
+    "zod": "4.6.7",
+    "@qill/llm": "workspace:*"
   }
 }

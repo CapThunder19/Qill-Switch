@@ -6,7 +6,9 @@ Everything below runs against the QoreChain testnet (`qorechain-diana`). Command
 
 - Node.js 22+ and pnpm (`npm i -g pnpm`)
 - A QoreChain dashboard login to claim testnet QOR (https://dashboard.qorechain.io/faucet)
-- Optional: `ANTHROPIC_API_KEY` for the Claude parts (mandate extraction, agent narration, guardian review). Without it,
+- Optional: a free **Gemini** API key (https://aistudio.google.com/apikey) in `.env` as `GEMINI_API_KEY` (copy
+  `.env.example` to `.env`), or `ANTHROPIC_API_KEY` for Claude. It powers mandate extraction (`--llm`), agent narration and
+  the guardian's review; check it with `pnpm llm:check`. Without it,
   the deterministic paths run and the LLM steps are skipped.
 
 ## 1. Build and test (no keys, no network)
@@ -15,7 +17,7 @@ Everything below runs against the QoreChain testnet (`qorechain-diana`). Command
 git clone --recurse-submodules https://github.com/CapThunder19/Qill-Switch && cd Qill-Switch
 pnpm install
 pnpm --filter @qill/contracts build
-pnpm test            # 42 Solidity (unit, fuzz, invariant) + 43 TypeScript tests
+pnpm test            # 42 Solidity (unit, fuzz, invariant) + 52 TypeScript tests
 ```
 
 ## 2. Use your own keys and deployments
