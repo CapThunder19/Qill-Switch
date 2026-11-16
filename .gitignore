@@ -40,3 +40,6 @@ contracts/ignition/deployments/chain-31337/
 logs/
 apps/dashboard/dist/
 apps/challenge/dist/
+
+# owner's private build brief (local only)
+QILL_SWITCH_BUILD_PROMPT.md
