@@ -53,7 +53,7 @@
   <!-- stat -->
   <g font-family="Inter, Segoe UI, Arial, sans-serif">
     <rect x="840" y="96" width="284" height="150" rx="18" fill="#0b1f1e" stroke="#1d4441"/>
-    <text x="864" y="150" font-size="54" font-weight="800" fill="#eef7f6">0 / 71</text>
+    <text x="864" y="150" font-size="54" font-weight="800" fill="#eef7f6">0 / 73</text>
     <text x="864" y="184" font-size="18" fill="#a9c4c1">attacks succeeded with</text>
     <text x="864" y="208" font-size="18" fill="#a9c4c1">the stolen keys (testnet)</text>
   </g>

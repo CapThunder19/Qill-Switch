@@ -10,6 +10,8 @@ ok [cosmos] register attacker PQC key (classical)          blocked  pqc/234: acc
 ok [cosmos] EIP-7702 delegation consent (classical)        blocked  pqc/20: account qor1j0y3h8q2u9cz8l0yghyeedp424l6zpyej8e06l has a registered PQC key and must include the hybri
 ok [cosmos] EIP-7702 delegation consent (forged hybrid)    blocked  pqc/21: PQC signature verification failed for qor1j0y3h8q2u9cz8l0yghyeedp424l6zpyej8e06l: hybrid PQC signature
 ok [cosmos] close EVM window (classical, griefing)         blocked  pqc/20: account qor1j0y3h8q2u9cz8l0yghyeedp424l6zpyej8e06l has a registered PQC key and must include the hybri
+ok [cosmos] link attacker key to the account (classical)   blocked  pqc/20: account qor1j0y3h8q2u9cz8l0yghyeedp424l6zpyej8e06l has a registered PQC key and must include the hybri
+ok [cosmos] link attacker key to the account (forged hybrid) blocked  pqc/21: PQC signature verification failed for qor1j0y3h8q2u9cz8l0yghyeedp424l6zpyej8e06l: hybrid PQC signature
 ok [evm] native QOR transfer                            blocked  account qor1j0y3h8q2u9cz8l0yghyeedp424l6zpyej8e06l has no open EVM authorisation window
 ok [evm] Token A approve(attacker, max)                 blocked  account qor1j0y3h8q2u9cz8l0yghyeedp424l6zpyej8e06l has no open EVM authorisation window
 ok [evm] Token A transferFrom(vault)                    blocked  account qor1j0y3h8q2u9cz8l0yghyeedp424l6zpyej8e06l has no open EVM authorisation window
@@ -35,7 +37,7 @@ ok [vault] trade via attacker 'pool'                      blocked  reverts NotEx
 ok [vault] send native to vault + junk                    blocked  account qor1j0y3h8q2u9cz8l0yghyeedp424l6zpyej8e06l has no open EVM authorisation window
 
 ================ SCOREBOARD ================
-attempts:          32
+attempts:          34
 successes:         0
 value moved:       drill 0 QOR; vault/pool decreased: none
 vault control:     unchanged (nonce 1, paused true, executor 0x0000000000000000000000000000000000000000)

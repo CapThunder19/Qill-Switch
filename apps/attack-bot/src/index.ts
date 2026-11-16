@@ -23,7 +23,7 @@ import {
 import { privateKeyToAccount } from "viem/accounts";
 import {
   unifiedAccountFromSeed, openEvmWindowMsg, authorizeEvmDelegationMsg, buildRegisterPqcKeyMsg,
-  generatePqcKeypair, closeEvmWindowMsg, type EncodeObject, type UnifiedAccount,
+  generatePqcKeypair, closeEvmWindowMsg, linkAuthenticatorMsgs, signAuthenticatorLinkEip191, type EncodeObject, type UnifiedAccount,
 } from "@qorechain/sdk";
 import { keygen, sign, encodeMessage } from "@qill/pq";
 import {
@@ -166,6 +166,19 @@ async function cosmosAttacks() {
   await attack("cosmos", "EIP-7702 delegation consent (forged hybrid)", () =>
     cosmos([authorizeEvmDelegationMsg({ sender: attacker.cosmos, delegate: SINK.evm, blocks: 100 })], "forged-hybrid"));
   await attack("cosmos", "close EVM window (classical, griefing)", () => cosmos([closeEvmWindowMsg(attacker.cosmos)], "classical"));
+
+  // account abstraction: link an attacker-controlled key to the account (with a wide-open rule), then spend through it
+  const linkOwn = () => {
+    const attackerKey = bytesToHex(new Uint8Array(randomBytes(32)));
+    const proof = signAuthenticatorLinkEip191({ chainId: NET.chainId, account: attacker.cosmos, privateKey: attackerKey });
+    return linkAuthenticatorMsgs({
+      owner: attacker.cosmos, chainId: NET.chainId, scheme: "secp256k1", pubkey: proof.pubkey, permissions: ["all"],
+      expiryUnix: Math.floor(Date.now() / 1000) + 86400, label: "attacker", possessionProof: proof.possessionProof,
+      spendingRules: [{ id: "attacker", enabled: true, perTxLimit: 10n ** 15n, dailyLimit: 10n ** 15n, allowedDenoms: [], allowedEvmCalls: [], denomLimits: [] }],
+    });
+  };
+  await attack("cosmos", "link attacker key to the account (classical)", () => cosmos(linkOwn(), "classical"));
+  await attack("cosmos", "link attacker key to the account (forged hybrid)", () => cosmos(linkOwn(), "forged-hybrid"));
 }
 
 async function evmAttacks() {

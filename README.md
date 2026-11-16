@@ -20,7 +20,7 @@ Built during the QoreChain "Build Before Q-Day" Developer Fest, track **Post-Qua
 | What | Result |
 |---|---|
 | Tests | **94 passing**: 42 Solidity (unit, fuzz ×1000, invariant ×256) + 52 TypeScript; CI runs them on every push |
-| Attack bot vs the drill deployment (only the drill account's ECDSA key) | **32 attempts, 0 successes**, 0 value moved ([log](docs/attack-bot-final-drill.txt)) |
+| Attack bot vs the drill deployment (only the drill account's ECDSA key) | **34 attempts, 0 successes**, 0 value moved ([log](docs/attack-bot-final-drill.txt)) |
 | Attack bot vs Steal This Agent (published account key + published agent key) | **39 attempts, 0 successes**, 0 value moved ([log](docs/attack-bot-final-challenge.txt)) |
 | Q-Day button on a test fleet | vault frozen, agent key revoked, windows closed in **one round**; the revoked key is then refused by the chain ([log](docs/qday-test-run-1.txt)) |
 | Owner `pause()` with a real ML-DSA-87 signature through `pqcVerify` | 283k gas including ~7.5 KB of signature calldata |

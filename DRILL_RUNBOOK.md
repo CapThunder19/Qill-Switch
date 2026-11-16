@@ -37,7 +37,7 @@ so the drill bot learns nothing about it.
 | EVM transfer, `approve`, `transferFrom`, deploy | no open EVM authorisation window |
 | Any QillVault function | no EVM window; even simulated, reverts `BadSignature` / `WrongKey` / `BadNonce` / `NotExecutor` |
 
-Reproduce all of it: `pnpm attack` (exits 1 if anything succeeds). Last run: [docs/attack-bot-run-1.txt](docs/attack-bot-run-1.txt), 32 attempts, 0 successes.
+Reproduce all of it: `pnpm attack` (exits 1 if anything succeeds). Last run: [docs/attack-bot-final-drill.txt](docs/attack-bot-final-drill.txt), 34 attempts (incl. linking an attacker key through account abstraction), 0 successes.
 
 ## During the drill
 
